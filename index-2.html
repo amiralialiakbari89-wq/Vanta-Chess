@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Vanta Chess — Master the Dark. Rule the Board.</title>
+<meta name="description" content="Vanta Chess is where champions train. Play, learn, and dominate with cutting-edge AI analysis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* APK: safe areas + no tap flash */
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);-webkit-tap-highlight-color:transparent}
+/* ===== Tokens ===== */
+:root{
+  --bg:#0a0a0b;--bg2:#131315;--card:#1a1a1d;
+  --green:#81b64c;--teal:#00d9a3;--warn:#e6912c;
+  --text:#fff;--muted:#a8a5a0;--line:rgba(255,255,255,.08);
+  --grad:linear-gradient(135deg,#81b64c,#00d9a3);
+  --r-s:8px;--r-m:12px;--r-l:14px;--ease:cubic-bezier(.4,0,.2,1);
+  --font:"Inter","Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+/* ===== Reset ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;animation:pageIn .8s var(--ease) both}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+svg{display:block}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:var(--r-s)}
+.container{width:100%;max-width:1200px;margin:0 auto;padding:0 16px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--green);color:#0a0a0b;padding:8px 16px;border-radius:var(--r-s);z-index:500;font-weight:600}
+.skip:focus{left:8px}
+
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 24px;border-radius:var(--r-m);font-weight:600;font-size:.95rem;border:1px solid transparent;background:none;cursor:pointer;position:relative;z-index:2;transition:transform .25s var(--ease),box-shadow .25s var(--ease),background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+.btn:hover{transform:scale(1.02)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--green);color:#0a0a0b;box-shadow:0 4px 14px rgba(129,182,76,.25)}
+.btn-primary:hover{background:#93c95c;box-shadow:0 0 28px rgba(129,182,76,.55),0 6px 20px rgba(0,217,163,.2)}
+.btn-ghost{border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);background:rgba(0,217,163,.06)}
+.btn-lg{min-height:56px;padding:0 32px;font-size:1.05rem}
+.linkbtn{background:none;border:0;cursor:pointer;color:var(--muted);min-height:36px;display:inline-flex;align-items:center;font-size:.93rem;transition:color .2s}
+.linkbtn:hover{color:var(--teal)}
+
+/* ===== Header ===== */
+header{position:sticky;top:0;z-index:100;border-bottom:1px solid transparent;transition:background .3s var(--ease),border-color .3s var(--ease)}
+header.scrolled{background:rgba(10,10,11,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-color:var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.logo{display:flex;align-items:center;gap:12px;min-height:44px}
+.logo svg{filter:drop-shadow(0 0 8px rgba(0,217,163,.45))}
+.logo span{font-size:1.3rem;letter-spacing:-.02em}
+.logo b{font-weight:800}.logo i{font-style:normal;font-weight:300;color:var(--muted)}
+nav ul{display:flex;gap:8px}
+.link{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--muted);font-weight:500;border-radius:var(--r-s);transition:color .25s var(--ease),background .25s var(--ease)}
+.link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.cta{display:flex;gap:12px}
+.burger{display:none;width:44px;height:44px;background:none;border:1px solid var(--line);border-radius:var(--r-s);cursor:pointer;position:relative}
+.burger span{position:absolute;left:12px;right:12px;height:2px;background:#fff;border-radius:2px;transition:transform .3s var(--ease),opacity .2s}
+.burger span:nth-child(1){top:14px}.burger span:nth-child(2){top:21px}.burger span:nth-child(3){top:28px}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.drawer{position:fixed;inset:68px 0 0 0;background:rgba(10,10,11,.97);padding:24px 16px;display:flex;flex-direction:column;gap:8px;transform:translateX(100%);visibility:hidden;transition:transform .35s var(--ease),visibility .35s;z-index:99;overflow-y:auto}
+.drawer.open{transform:none;visibility:visible}
+.drawer .link{min-height:52px;font-size:1.2rem;font-weight:600;border-bottom:1px solid var(--line);border-radius:0;color:var(--text)}
+.drawer .btn{margin-top:12px}
+@media(max-width:1023px){nav,.cta{display:none}.burger{display:block}}
+@media(min-width:1024px){.drawer{display:none}}
+
+/* ===== Hero ===== */
+.hero{position:relative;padding:48px 0 64px;overflow:hidden;background:radial-gradient(ellipse 70% 60% at 75% 30%,rgba(0,217,163,.14),transparent 70%),radial-gradient(ellipse 60% 50% at 10% 90%,rgba(129,182,76,.1),transparent 70%),var(--bg)}
+.bg-pattern{position:absolute;inset:0;z-index:0;pointer-events:none;background:conic-gradient(rgba(255,255,255,.035) 25%,transparent 0 50%,rgba(255,255,255,.035) 0 75%,transparent 0) 0 0/64px 64px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000,transparent 70%);mask-image:radial-gradient(ellipse at 70% 40%,#000,transparent 70%)}
+.hero-grid{position:relative;z-index:2;display:grid;gap:48px;align-items:center}
+.badge{display:inline-flex;padding:6px 14px;border:1px solid rgba(129,182,76,.35);background:rgba(129,182,76,.08);color:var(--green);border-radius:999px;font-size:.85rem;font-weight:600}
+h1{font-size:clamp(2.5rem,7vw,4.75rem);line-height:1.05;letter-spacing:-.035em;font-weight:800;margin:24px 0 16px}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);font-size:clamp(1rem,2vw,1.2rem);max-width:52ch;margin-bottom:32px}
+.actions{display:flex;flex-wrap:wrap;gap:16px}
+.hero-stats{display:flex;flex-wrap:wrap;gap:24px;margin-top:32px;color:var(--muted);font-size:.95rem}
+.hero-stats strong{color:#fff;font-weight:700}
+.fade{opacity:0;transform:translateY(16px);animation:rise .8s var(--ease) forwards}
+.fade:nth-child(2){animation-delay:.1s}.fade:nth-child(3){animation-delay:.2s}.fade:nth-child(4){animation-delay:.3s}.fade:nth-child(5){animation-delay:.4s}
+@keyframes rise{to{opacity:1;transform:none}}
+.hero-board{position:relative;width:min(100%,460px);margin:0 auto;aspect-ratio:1;transform:perspective(1100px) rotateY(-8deg) rotateX(4deg);animation:float 6s ease-in-out infinite;will-change:transform}
+@keyframes float{50%{transform:perspective(1100px) rotateY(-8deg) rotateX(4deg) translateY(-12px)}}
+.hero-board::after{content:"";position:absolute;inset:-6%;z-index:-1;background:radial-gradient(circle,rgba(0,217,163,.3),transparent 65%);filter:blur(30px)}
+.mini{display:grid;grid-template-columns:repeat(8,1fr);width:100%;height:100%;border-radius:var(--r-l);overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 6px var(--bg2)}
+.mini div{display:flex;align-items:center;justify-content:center;font-size:clamp(1.2rem,4.5vw,2.2rem);line-height:1}
+.mini .l{background:#2c3a2a}.mini .d{background:#16201a}
+.mini .w{color:#fff;text-shadow:0 1px 3px #000}.mini .b{color:#0a0a0b;text-shadow:0 0 6px rgba(0,217,163,.8)}
+@media(min-width:1024px){.hero-grid{grid-template-columns:1.1fr .9fr}.hero{padding:64px 0 96px}}
+
+/* ===== Trust ===== */
+.trust{border-block:1px solid var(--line);background:var(--bg2);padding:24px 0;overflow:hidden}
+.trust p{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:16px}
+.marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.track{display:flex;width:max-content;gap:48px;animation:scroll 32s linear infinite;will-change:transform}
+.marquee:hover .track{animation-play-state:paused}
+.track li{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.track svg{color:var(--green)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* ===== Sections ===== */
+.block{padding:64px 0}
+.head{text-align:center;max-width:640px;margin:0 auto 48px}
+h2{font-size:clamp(1.8rem,4vw,2.75rem);letter-spacing:-.03em;line-height:1.15;font-weight:800;margin-bottom:12px}
+.head p{color:var(--muted)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.features{display:grid;gap:16px;grid-template-columns:1fr}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:32px 24px;scroll-margin-top:90px;transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.fcard.reveal{transition:opacity .7s var(--ease),transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.fcard:hover{transform:translateY(-6px);border-color:rgba(129,182,76,.55);box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 32px rgba(0,217,163,.12)}
+.ico{width:52px;height:52px;border-radius:var(--r-m);display:grid;place-items:center;background:rgba(0,217,163,.1);color:var(--teal);margin-bottom:16px}
+.fcard h3{font-size:1.15rem;margin-bottom:8px}
+.fcard p{color:var(--muted);font-size:.95rem}
+@media(min-width:768px){.features{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.features{grid-template-columns:repeat(3,1fr)}}
+
+/* ===== Board ===== */
+.try{background:var(--bg2);border-block:1px solid var(--line)}
+.game{display:grid;gap:24px;max-width:1040px;margin:0 auto;grid-template-columns:minmax(0,1fr)}
+.bcol{width:100%;max-width:640px;margin:0 auto}
+.pbar{display:flex;align-items:center;gap:12px;padding:8px 2px;min-height:56px}
+.av{width:40px;height:40px;flex:none;border-radius:var(--r-s);display:grid;place-items:center;font-size:1.7rem;line-height:1;background:var(--card);border:1px solid var(--line);font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif;transition:border-color .3s,box-shadow .3s}
+.av.w{color:#fff}.av.b{background:#e9ecdf;color:#111}
+.pbar.turn .av{border-color:var(--teal);box-shadow:0 0 16px rgba(0,217,163,.5)}
+.pname{font-weight:600;line-height:1.2}
+.cap{font-size:1.05rem;color:var(--muted);letter-spacing:-.12em;min-height:1.4em;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif}
+.adv{margin-left:auto;font-weight:700;color:var(--teal)}
+.bw{position:relative}
+.board{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border-radius:var(--r-s);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55),0 0 0 1px var(--line),0 0 50px rgba(0,217,163,.08)}
+.sq{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:min(8.4vw,3.6rem);line-height:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif}
+.sq.l{background:#eeeed2}.sq.d{background:#769656}
+.sq.w{color:#fff;text-shadow:-1px -1px 0 #3a3a3a,1px -1px 0 #3a3a3a,-1px 1px 0 #3a3a3a,1px 1px 0 #3a3a3a,0 3px 4px rgba(0,0,0,.35)}
+.sq.b{color:#1b1b1b;text-shadow:0 1px 0 rgba(255,255,255,.25),0 3px 4px rgba(0,0,0,.35)}
+.sq::before{content:"";position:absolute;inset:0;z-index:-1;opacity:0}
+.sq.last::before,.sq.pick::before{background:rgba(255,235,59,.5);opacity:1}
+.sq.chk::before{background:radial-gradient(circle,#ff3b3b 0,rgba(255,59,59,.85) 28%,rgba(255,59,59,0) 72%);opacity:1}
+.sq.mv::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(20,40,10,.3)}
+.sq.cp::after{content:"";position:absolute;inset:3%;border-radius:50%;border:5px solid rgba(20,40,10,.3)}
+.sq:hover{box-shadow:inset 0 0 0 3px rgba(255,255,255,.6)}
+.co{position:absolute;font-size:.65rem;font-weight:700;font-style:normal;line-height:1;pointer-events:none;font-family:var(--font);text-shadow:none}
+.co.r{left:3px;top:3px}.co.f{right:3px;bottom:3px}
+.sq.l .co{color:#769656}.sq.d .co{color:#eeeed2}
+.promo{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(0,0,0,.7);border-radius:var(--r-s);flex-wrap:wrap;padding:12px}
+.promo[hidden]{display:none}
+.pbtn{width:clamp(56px,15vw,76px);aspect-ratio:1;border-radius:var(--r-m);border:1px solid var(--line);background:#eeeed2;cursor:pointer;font-size:clamp(2rem,9vw,3.2rem);line-height:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif;color:#1b1b1b;transition:transform .2s var(--ease),box-shadow .2s}
+.pbtn.w{color:#fff;background:#769656;text-shadow:-1px -1px 0 #3a3a3a,1px -1px 0 #3a3a3a,-1px 1px 0 #3a3a3a,1px 1px 0 #3a3a3a}
+.pbtn:hover{transform:scale(1.06);box-shadow:0 0 24px rgba(0,217,163,.6)}
+.panel{display:flex;flex-direction:column;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:20px;max-width:640px;width:100%;margin:0 auto}
+.eyebrow{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+#status{font-size:1.15rem;font-weight:700;min-height:1.7em}
+#status.end{color:var(--teal)}
+.moves{flex:1;min-height:150px;max-height:340px;overflow-y:auto;display:grid;grid-template-columns:36px 1fr 1fr;grid-auto-rows:min-content;gap:2px 8px;align-content:start;font-variant-numeric:tabular-nums;font-size:.95rem;padding:8px;background:var(--bg);border-radius:var(--r-m);border:1px solid var(--line)}
+.moves span{padding:3px 8px;border-radius:6px;min-height:1.7em}
+.moves .n{color:var(--muted);padding-left:0}
+.moves .cur{background:rgba(0,217,163,.18);color:var(--teal);font-weight:600}
+.moves .empty{grid-column:1/-1;color:var(--muted)}
+.readout{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 16px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);color:var(--muted);font-size:.9rem}
+.readout strong{color:var(--teal);font-size:1.1rem;letter-spacing:.04em}
+.pbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-sm{min-height:44px;padding:0 12px;font-size:.9rem}
+@media(min-width:1024px){.game{grid-template-columns:minmax(0,640px) minmax(300px,1fr);justify-content:center}.bcol,.panel{margin:0}.moves{max-height:380px}}
+
+/* ===== Stats ===== */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:32px 16px;text-align:center}
+.stat b{display:block;font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.95rem}
+@media(min-width:1024px){.stats{grid-template-columns:repeat(4,1fr)}}
+
+/* ===== Final CTA ===== */
+.final{padding:0 16px 64px}
+.final-box{max-width:1100px;margin:0 auto;border-radius:24px;padding:clamp(40px,8vw,88px) 24px;text-align:center;color:#06120d;background:radial-gradient(circle at 80% 0,rgba(255,255,255,.28),transparent 50%),var(--grad);box-shadow:0 30px 80px rgba(0,217,163,.2)}
+.final-box h2{color:#06120d}
+.final-box p{max-width:46ch;margin:0 auto 32px;font-weight:500}
+.final-box .btn{background:#0a0a0b;color:#fff}
+.final-box .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.final-box .btn:hover{box-shadow:0 12px 32px rgba(0,0,0,.45)}
+
+/* ===== Footer ===== */
+footer{border-top:1px solid var(--line);background:var(--bg2);padding:64px 0 24px}
+.fgrid{display:grid;gap:32px;grid-template-columns:1fr 1fr}
+.fgrid>div:first-child{grid-column:1/-1}
+.fgrid p{color:var(--muted);font-size:.93rem;max-width:36ch;margin:16px 0}
+.fgrid h4{font-size:.95rem;margin-bottom:12px}
+.social{display:flex;gap:12px}
+.social a{width:44px;height:44px;border:1px solid var(--line);border-radius:var(--r-m);cursor:pointer;display:grid;place-items:center;color:var(--muted);transition:color .25s,border-color .25s,transform .25s}
+.social a:hover{color:var(--teal);border-color:var(--teal);transform:translateY(-2px)}
+.legal{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
+@media(min-width:768px){.fgrid{grid-template-columns:1.6fr 1fr 1fr 1fr}.fgrid>div:first-child{grid-column:auto}}
+
+/* ===== Modal & toast ===== */
+.overlay{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .25s var(--ease),visibility .25s}
+.overlay.open{opacity:1;visibility:visible}
+.modal{position:relative;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:32px 24px 24px;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 40px rgba(0,217,163,.12);transform:translateY(16px) scale(.97);transition:transform .25s var(--ease)}
+.overlay.open .modal{transform:none}
+.modal h3{font-size:1.5rem;letter-spacing:-.02em;margin-bottom:4px}
+.modal .lead{color:var(--muted);font-size:.95rem;margin-bottom:24px}
+.mclose{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:var(--r-s);border:0;background:none;cursor:pointer;color:var(--muted);display:grid;place-items:center;font-size:1.4rem;transition:color .2s,background .2s}
+.mclose:hover{color:#fff;background:rgba(255,255,255,.06)}
+.field{display:block;margin-bottom:16px}
+.field span{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;min-height:48px;padding:0 14px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-m);transition:border-color .2s,box-shadow .2s}
+.field input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,217,163,.2)}
+.modal .btn{width:100%}
+.switch{text-align:center;margin-top:16px;color:var(--muted);font-size:.9rem}
+.switch .linkbtn{color:var(--teal);display:inline;min-height:0;font-size:inherit}
+.err{color:var(--warn);font-size:.85rem;min-height:1.3em;margin-bottom:8px}
+.toast{position:fixed;left:50%;bottom:24px;z-index:400;transform:translate(-50%,20px);max-width:calc(100% - 32px);padding:12px 20px;background:var(--card);border:1px solid var(--teal);border-radius:var(--r-m);box-shadow:0 10px 40px rgba(0,0,0,.6),0 0 24px rgba(0,217,163,.25);opacity:0;visibility:hidden;transition:all .3s var(--ease);text-align:center}
+.toast.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
+@media(max-width:480px){.btn-lg{width:100%}.readout{flex-direction:column;align-items:flex-start;gap:4px}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal,.fade{opacity:1;transform:none}
+}
+.board{grid-template-rows:repeat(8,1fr);container-type:inline-size;touch-action:manipulation}
+.sq{min-width:0;min-height:0;aspect-ratio:1;font-size:10.5cqw;overflow:hidden}
+.sq:hover{box-shadow:none}@media(hover:hover){.sq:hover{box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}}
+#board{--l:#eeeed2;--d:#769656;--pw:#fff;--pb:#262421}
+#board[data-th=wood]{--l:#f0d9b5;--d:#b58863;--pw:#fffaf0;--pb:#2b1d12}
+#board[data-th=ocean]{--l:#dee3e6;--d:#8ca2ad;--pw:#fff;--pb:#1d2a33}
+#board[data-th=violet]{--l:#f0f1f0;--d:#8476ba;--pw:#fff;--pb:#2a2145}
+#board[data-th=neon]{--l:#2c3138;--d:#171a1f;--pw:#00d9a3;--pb:#ff4d8d}
+#board .sq.l{background:var(--l)}#board .sq.d{background:var(--d)}
+#board .sq.w{color:var(--pw);filter:drop-shadow(0 2px 1px rgba(0,0,0,.35))}#board .sq.b{color:var(--pb);filter:drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+#board .sq.l .co{color:var(--d)}#board .sq.d .co{color:var(--l)}
+.av.bot{font-size:1.5rem;background:#1c2b27}
+.clk{margin-left:auto;font:700 1.1rem/1 var(--font);background:#0c0d0e;border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:70px;text-align:center}.clk:empty{display:none}
+.adv{margin-left:6px}
+.tabs{display:flex;gap:4px;overflow-x:auto}.tabs button{flex:none;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;font:600 .8rem var(--font)}.tabs .on{background:var(--teal);color:#06130f;border-color:var(--teal)}
+.tp{display:grid;gap:10px}.tp[hidden]{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:transparent;color:inherit;font:600 .75rem var(--font);cursor:pointer}.chip.on{border-color:var(--teal);color:var(--teal)}
+.bots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.bc{display:grid;justify-items:center;gap:2px;padding:6px 2px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;font:600 .7rem var(--font)}.bc b{font-size:1.5rem}.bc.on{border-color:var(--teal);box-shadow:0 0 12px rgba(0,217,163,.4)}
+.sel{background:#0c0d0e;color:inherit;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;min-width:0}
+.note{font-size:.85rem;opacity:.85;margin:0}
+.evbar{height:10px;background:#111;border-radius:6px;overflow:hidden;border:1px solid var(--line)}.evbar i{display:block;height:100%;width:50%;background:#fff;transition:width .4s}
+.chat{max-height:220px;overflow:auto;display:grid;gap:6px;font-size:.85rem}.chat p{margin:0;padding:8px 10px;border-radius:10px;background:#15181a}.chat .u{background:#0e3b30;justify-self:end}
+.srow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}.up{color:#00d9a3}.dn{color:#ff6b6b}
+
+.pc{width:88%;height:88%;pointer-events:none;filter:drop-shadow(0 2px 1px rgba(0,0,0,.3))}.cpi{width:18px;height:18px;margin-right:-7px;vertical-align:middle}.chip .cpi{width:22px;height:22px;margin:0}.mini .pc{width:78%;height:78%}.pbtn .pc,.av .pc{width:80%;height:80%}.cap{display:flex;align-items:center;letter-spacing:0;padding-left:7px}
+.av.bot,.bc b.ini{font-weight:700;font-family:var(--font);color:var(--green);font-size:1.15rem;background:linear-gradient(145deg,#1d2a26,#0c1210);border:1px solid rgba(129,182,76,.4)}.bc b.ini{width:36px;height:36px;border-radius:50%;display:grid;place-items:center}
+.chat p{white-space:pre-wrap}.chat{max-height:300px}
+.les{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}.lc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:18px;text-align:left;cursor:pointer;color:inherit;display:grid;gap:4px}.lc:hover{border-color:var(--teal)}.lc small{color:var(--teal);font-weight:600}.lc h3{font-size:1.05rem}.lc.ok::after{content:"\2713 done";color:var(--green);font-size:.8rem}
+.pgov{position:fixed;inset:0;z-index:350;background:rgba(0,0,0,.82);display:flex;overflow:auto;padding:20px 12px}.pgov[hidden]{display:none}.pgbox{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);max-width:760px;width:100%;margin:auto;padding:36px 22px 24px;display:grid;gap:10px}.pgbox h3{font-size:1.6rem;letter-spacing:-.02em}.pgbox p,.pgbox li{color:var(--muted)}.pgbox ul{list-style:none;display:grid;gap:8px}.pgbox .d{font-size:.8rem;color:var(--teal)}.pgbox .post{padding:14px 0;border-top:1px solid var(--line)}.pgbox .post h3{font-size:1.15rem}
+.mu{position:fixed;left:16px;bottom:16px;z-index:250}.mub{width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--teal);color:var(--teal);font-size:1.3rem;cursor:pointer}.mub.on{box-shadow:0 0 18px rgba(0,217,163,.6)}.mup{position:absolute;bottom:58px;left:0;width:290px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:14px;display:grid;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.6)}.mup[hidden]{display:none}.mup input[type=range]{width:100%}
+.langSel,.langSel2{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:var(--r-m);min-height:44px;padding:0 10px;font-size:.9rem}.langSel2{width:100%;max-width:380px;margin-bottom:14px}.dg{display:grid;grid-template-columns:16px repeat(8,1fr);max-width:300px;margin:12px auto;direction:ltr}.dg b{aspect-ratio:1;display:grid;place-items:center;font-size:1.35rem;font-weight:400;color:#000}.dg .l{background:#c9d1ba}.dg .d{background:#6b8f4e}.dg .h{outline:3px solid #e6912c;outline-offset:-3px}.dl{font-size:.7rem;color:var(--muted);display:grid;place-items:center}.xo{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+
+/* ===== Focus (one-screen) game mode ===== */
+.xbtn{display:none;align-self:flex-start}
+body.gaming{overflow:hidden}
+body.gaming .xbtn{display:inline-flex}
+body.gaming #play{position:fixed;inset:0;z-index:260;padding:10px 14px;background:var(--bg2);overflow:hidden;border:0;display:flex}
+body.gaming #play .head{display:none}
+body.gaming #play>.container{height:100%;max-width:1320px;padding:0;display:flex;align-items:center;justify-content:center}
+body.gaming .game{width:100%;height:100%;max-width:none;margin:0;gap:18px;grid-template-columns:auto minmax(300px,400px);justify-content:center;align-items:center}
+body.gaming .bcol{--bs:min(calc(100dvh - 128px),calc(100vw - 460px),760px);width:var(--bs);max-width:none;margin:0}
+body.gaming .pbar{min-height:48px;padding:4px 2px}
+body.gaming .panel{height:min(100%,calc(100dvh - 24px));max-width:none;margin:0;overflow-y:auto;padding:14px;gap:12px;overscroll-behavior:contain}
+body.gaming .moves{flex:0 0 auto;min-height:84px;max-height:20dvh}
+body.gaming .mu{z-index:270;left:10px;bottom:10px;transform:scale(.85);transform-origin:left bottom}
+@media(max-width:900px){
+  body.gaming #play{padding:6px 8px}
+  body.gaming .game{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);align-content:start;gap:8px}
+  body.gaming .bcol{--bs:min(calc(100vw - 16px),calc(100dvh - 290px),620px);margin:0 auto}
+  body.gaming .panel{height:100%;max-width:640px;margin:0 auto;width:100%}
+}
+
+/* ===== App themes ===== */
+html[data-app=midnight]{--bg:#070b16;--bg2:#0d1426;--card:#141d36;--green:#5b8def;--teal:#38bdf8;--grad:linear-gradient(135deg,#5b8def,#38bdf8)}
+html[data-app=forest]{--bg:#08100b;--bg2:#0f1b13;--card:#16241a;--green:#6fcf6f;--teal:#2ee6a6;--grad:linear-gradient(135deg,#6fcf6f,#2ee6a6)}
+html[data-app=sunset]{--bg:#140b08;--bg2:#1e1210;--card:#2a1915;--green:#f59e42;--teal:#ff6b6b;--grad:linear-gradient(135deg,#f59e42,#ff6b6b)}
+html[data-app=rose]{--bg:#120a10;--bg2:#1c1119;--card:#271725;--green:#e879b9;--teal:#c084fc;--grad:linear-gradient(135deg,#e879b9,#c084fc)}
+html[data-app=light]{--bg:#f4f5f2;--bg2:#e9ebe5;--card:#fff;--green:#4f8a1f;--teal:#0a9f78;--text:#16181a;--muted:#5d625b;--line:rgba(0,0,0,.13);--grad:linear-gradient(135deg,#4f8a1f,#0a9f78)}
+html[data-app] header.scrolled,html[data-app] .drawer{background:color-mix(in srgb,var(--bg) 82%,transparent)}
+html[data-app=light] .sel,html[data-app=light] .clk,html[data-app=light] .chat p,html[data-app=light] .readout,html[data-app=light] .evbar{background:#fff;color:#16181a}
+html[data-app=light] .chat .u{background:#d6f2e8}
+html[data-app=light] .burger span{background:#16181a}
+html[data-app=light] .btn-primary,html[data-app=light] .tabs .on{color:#fff}
+html[data-app=light] .final-box,html[data-app=light] .final-box h2{color:#fff}
+html[data-app=light] .logo svg text{fill:#fff}
+.st{position:fixed;left:72px;bottom:16px;z-index:250}
+.stp{position:absolute;bottom:58px;left:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;min-width:210px;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.stp[hidden]{display:none}
+.stp b{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tmb{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;font:600 .9rem var(--font)}
+.tmb.on{border-color:var(--teal);color:var(--teal)}
+.tmb i{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none}
+body.gaming .st{z-index:270;left:62px;bottom:10px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ===== Header ===== -->
+<header id="header">
+  <div class="container bar">
+    <a class="logo" href="#home" aria-label="Vanta Chess home">
+      <svg width="40" height="44" viewBox="0 0 40 44" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#81b64c"/><stop offset="1" stop-color="#00d9a3"/></linearGradient></defs>
+        <path d="M20 1.5 37 11v22L20 42.5 3 33V11z" fill="url(#lg)"/>
+        <text x="20" y="30" text-anchor="middle" font-size="22" fill="#0a0a0b" font-family="'Segoe UI Symbol','Noto Sans Symbols 2',sans-serif">♞</text>
+      </svg>
+      <span><b>Vanta</b> <i>Chess</i></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a class="link" href="#home">Home</a></li>
+        <li><a class="link" href="#play">Play</a></li>
+        <li><a class="link" href="#lessons">Learn</a></li>
+        <li><a class="link" href="#puzzles">Puzzles</a></li>
+        <li><a class="link" href="#stats">Leaderboard</a></li>
+      </ul>
+    </nav>
+    <div class="cta">
+      <select class="langSel" aria-label="Language"><option value="en">English</option><option value="fa">فارسی</option><option value="es">Español</option></select>
+      <button type="button" class="btn btn-ghost" data-open="login">Login</button>
+      <button type="button" class="btn btn-primary" data-open="signup">Sign Up Free</button>
+    </div>
+    <button type="button" class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<div class="drawer" id="drawer">
+    <select class="langSel" aria-label="Language"><option value="en">English</option><option value="fa">فارسی</option><option value="es">Español</option></select>
+    <a class="link" href="#home">Home</a><a class="link" href="#play">Play</a><a class="link" href="#lessons">Learn</a><a class="link" href="#puzzles">Puzzles</a><a class="link" href="#stats">Leaderboard</a>
+    <button type="button" class="btn btn-ghost" data-open="login">Login</button>
+    <button type="button" class="btn btn-primary" data-open="signup">Sign Up Free</button>
+</div>
+
+<main id="main">
+<!-- ===== Hero ===== -->
+<section class="hero" id="home" aria-labelledby="hero-title">
+  <div class="bg-pattern" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div>
+      <span class="badge fade">★ The #1 Chess Platform for Pros</span>
+      <h1 id="hero-title" class="fade"><span class="grad">Master the Dark.<br>Rule the Board.</span></h1>
+      <p class="sub fade">Vanta Chess is where champions train. Play, learn, and dominate — with cutting-edge AI analysis.</p>
+      <div class="actions fade">
+        <button type="button" class="btn btn-primary btn-lg" id="startBtn">Start Playing Free</button>
+        <button type="button" class="btn btn-ghost btn-lg" id="demoBtn" aria-label="Watch demo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch Demo
+        </button>
+      </div>
+    </div>
+    <div class="hero-board" aria-hidden="true"><div class="mini" id="miniBoard"></div></div>
+  </div>
+</section>
+
+<!-- ===== Trust ===== -->
+<section class="trust" aria-label="Trusted by grandmasters">
+  <p>Trusted by grandmasters worldwide</p>
+  <div class="marquee"><ul class="track" id="track"></ul></div>
+</section>
+
+<!-- ===== Features ===== -->
+<section class="block" id="features" aria-labelledby="feat-title">
+  <div class="container">
+    <div class="head reveal"><h2 id="feat-title">Why Vanta Chess?</h2><p>Everything a serious player needs, in one dark, distraction-free place.</p></div>
+    <div class="features" id="featGrid"></div>
+  </div>
+</section>
+
+<!-- ===== Interactive board ===== -->
+<section class="block try" id="play" aria-labelledby="try-title">
+  <div class="container">
+    <div class="head reveal"><h2 id="try-title">Try the Vanta Board</h2><p>Full chess rules: castling, en passant, promotion, check and checkmate. Click a piece to see its legal moves.</p></div>
+    <div class="game">
+      <div class="bcol">
+        <div class="pbar" id="topBar"><div class="av" id="topAv" aria-hidden="true"></div><div><div class="pname" id="topName"></div><div class="cap" id="topCap" aria-hidden="true"></div></div><span class="adv" id="topAdv"></span></div>
+        <div class="bw">
+          <div class="board" id="board" role="group" aria-label="Chess board"></div>
+          <div class="promo" id="promo" hidden role="dialog" aria-label="Choose promotion piece"></div>
+        </div>
+        <div class="pbar" id="botBar"><div class="av" id="botAv" aria-hidden="true"></div><div><div class="pname" id="botName"></div><div class="cap" id="botCap" aria-hidden="true"></div></div><span class="adv" id="botAdv"></span></div>
+      </div>
+      <aside class="panel" aria-label="Game panel">
+        <div><p class="eyebrow">Game status</p><p id="status" aria-live="polite"></p></div>
+        <div class="moves" id="moves" aria-label="Move list"></div><div class="pbtns"><button type="button" class="btn btn-ghost btn-sm" id="pgnBtn">Copy PGN</button><button type="button" class="btn btn-ghost btn-sm" id="sndBtn"></button></div>
+        <div class="tabs" id="tabs"><button type="button" data-t="play" class="on">Play</button><button type="button" data-t="puzzle">Puzzles</button><button type="button" data-t="ana">Analysis</button><button type="button" data-t="coach">AI Coach</button><button type="button" data-t="stats">Stats</button></div>
+        <div class="tp" id="p-play">
+          <div class="chips" id="tcs"></div>
+          <div class="bots" id="bots"></div>
+          <div class="pbtns"><select id="sideSel" class="sel"><option value="w">Play White</option><option value="b">Play Black</option><option value="r">Random</option></select><button type="button" class="btn btn-primary btn-sm" id="newBtn">Start Game</button><button type="button" class="btn btn-ghost btn-sm" id="resBtn">Resign</button><button type="button" class="btn btn-ghost btn-sm" id="flipBtn">Flip Board</button></div>
+          <div class="chips" id="themes"></div>
+        </div>
+        <div class="tp" id="p-puzzle" hidden>
+          <div class="chips" id="pzCats"></div><p id="pzInfo" class="note"></p>
+          <div class="pbtns"><button type="button" class="btn btn-ghost btn-sm" id="pzPrev">Prev</button><button type="button" class="btn btn-primary btn-sm" id="pzNext">Next</button><button type="button" class="btn btn-ghost btn-sm" id="pzRnd">Random</button><button type="button" class="btn btn-ghost btn-sm" id="pzHint">Hint</button><input id="pzNum" class="sel" type="number" min="1" max="11000" placeholder="Go to # (1–11000)"><button type="button" class="btn btn-ghost btn-sm" id="pzGo">Go</button></div>
+        </div>
+        <div class="tp" id="p-ana" hidden>
+          <div class="evbar"><i id="evFill"></i></div><p id="opnName" class="note" style="font-weight:700;color:var(--teal)"></p><p id="anaOut" class="note">Engine idle. Make moves freely for both sides, then press Analyze.</p>
+          <div class="pbtns"><button type="button" class="btn btn-primary btn-sm" id="anaNew">New Analysis</button><button type="button" class="btn btn-ghost btn-sm" id="anaSetup">Set up position</button><button type="button" class="btn btn-primary btn-sm" id="anaRun">Analyze</button><button type="button" class="btn btn-ghost btn-sm" id="anaUndo">Undo</button><button type="button" class="btn btn-ghost btn-sm" id="anaClear" style="grid-column:1/-1">Clear All</button></div>
+          <div class="chips" id="pal" hidden></div>
+          <div class="pbtns"><input id="fen" class="sel" placeholder="Paste FEN"><button type="button" class="btn btn-ghost btn-sm" id="fenLoad">Load FEN</button><button type="button" class="btn btn-ghost btn-sm" id="fenCopy">Copy FEN</button><button type="button" class="btn btn-ghost btn-sm" id="turnBtn">Side: White</button></div>
+        </div>
+        <div class="tp" id="p-coach" hidden>
+          <div class="chat" id="chat"></div>
+          <div class="chips" id="qk"></div>
+          <div class="pbtns"><input id="cin" class="sel" placeholder="Ask about chess…"><button type="button" class="btn btn-primary btn-sm" id="csend">Send</button></div>
+        </div>
+        <div class="tp" id="p-stats" hidden><div id="sPan"></div></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Lessons ===== -->
+<section class="block" id="lessons" aria-labelledby="les-title"><div class="container"><div class="head"><h2 id="les-title">Lessons</h2><p>Learn step by step. Every lesson comes with a position you can open on the board.</p><p id="lessonProg" class="note"></p></div><select id="topicSel" class="langSel2" aria-label="Topic"></select><div class="les" id="lessonGrid"></div><h3 id="opnH" style="margin:36px 0 6px"></h3><p id="opnProg" class="note"></p><input id="opnSearch" class="sel" style="width:100%;max-width:380px;margin-bottom:12px"><div class="les" id="opnGrid"></div></div></section>
+
+<!-- ===== Final CTA ===== -->
+<section class="final" id="join" aria-labelledby="cta-title">
+  <div class="final-box reveal">
+    <h2 id="cta-title">Ready to Enter the Darkness?</h2>
+    <p>Create your free account in seconds and play your first game today.</p>
+    <button type="button" class="btn btn-lg" data-open="signup">Join Vanta Chess Free</button>
+    <div class="row"><a class="btn btn-sm" href="https://t.me/VantaChess" target="_blank" rel="noopener noreferrer" aria-label="Vanta Chess on Telegram">Telegram</a><a class="btn btn-sm" href="https://x.com/amir82537" target="_blank" rel="noopener noreferrer" aria-label="Vanta Chess on X">X (Twitter)</a></div>
+  </div>
+</section>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="container">
+    <div class="fgrid">
+      <div>
+        <a class="logo" href="#home" aria-label="Vanta Chess home">
+          <svg width="32" height="36" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 1.5 37 11v22L20 42.5 3 33V11z" fill="url(#lg)"/><text x="20" y="30" text-anchor="middle" font-size="22" fill="#0a0a0b" font-family="'Segoe UI Symbol',sans-serif">♞</text></svg>
+          <span><b>Vanta</b> <i>Chess</i></span>
+        </a>
+        <p>Master the Dark. Rule the Board. The chess platform built for players who want to win.</p>
+        <div class="social"><a href="https://t.me/VantaChess" target="_blank" rel="noopener noreferrer" aria-label="Vanta Chess on Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.5 3 2.5 10.4l5.2 1.7L18 6l-8.100 7.600-.3 4.600 2.800-2.600 4 3z"/></svg></a><a href="https://x.com/amir82537" target="_blank" rel="noopener noreferrer" aria-label="Vanta Chess on X"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.2 2h3.3l-7.200 8.300L22.800 22h-6.600l-5.200-6.800L5 22H1.700l7.700-8.800L1.200 2H8l4.700 6.200zm-1.200 18h1.800L7 3.900H5.100z"/></svg></a></div>
+      </div>
+      <div><h4>Product</h4><ul>
+        <li><a class="linkbtn" href="#play">Play</a></li>
+        <li><a class="linkbtn" href="#features">Analysis</a></li>
+        <li><a class="linkbtn" href="#puzzles">Puzzles</a></li>
+        <li><a class="linkbtn" href="#lessons">Lessons</a></li></ul></div>
+      <div><h4>Company</h4><ul>
+        <li><button type="button" class="linkbtn" data-pg="about">About</button></li>
+        <li><button type="button" class="linkbtn" data-pg="contact">Contact</button></li></ul></div>
+      <div><h4>Resources</h4><ul>
+        <li><button type="button" class="linkbtn" data-pg="help">Help Center</button></li>
+        <li><button type="button" class="linkbtn" data-pg="blog">Blog</button></li>
+        <li><button type="button" class="linkbtn" data-pg="privacy">Privacy</button></li>
+        <li><button type="button" class="linkbtn" data-pg="terms">Terms</button></li></ul></div>
+    </div>
+    <p class="legal">© 2025 Vanta Chess. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- ===== Modal + toast ===== -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button type="button" class="mclose" id="mClose" aria-label="Close dialog">✕</button>
+    <div id="mBody"></div>
+  </div>
+</div>
+<div class="pgov" id="pg" hidden><div class="pgbox" role="dialog" aria-modal="true"><button type="button" class="mclose" id="pgX" aria-label="Close">✕</button><div id="pgBody"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  'use strict';
+  const $ = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+
+  /* ---------- Toast ---------- */
+  const toast = $('#toast');
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent = XS(msg);
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+  $$('[data-toast]').forEach(el => el.addEventListener('click', () => showToast(el.dataset.toast)));
+
+  /* ---------- Header blur ---------- */
+  const header = $('#header');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 10);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- Mobile drawer ---------- */
+  const burger = $('#burger'), drawer = $('#drawer');
+  function setMenu(open) {
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    drawer.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  burger.addEventListener('click', () => setMenu(burger.getAttribute('aria-expanded') !== 'true'));
+  $$('a', drawer).forEach(a => a.addEventListener('click', () => setMenu(false)));
+  window.matchMedia('(min-width:1024px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+
+  /* ---------- Modal ---------- */
+  const overlay = $('#overlay'), mBody = $('#mBody');
+  let lastFocus = null;
+  const field = (id, label, type, ph, ac) =>
+    '<label class="field"><span>' + label + '</span><input id="' + id + '" type="' + type + '" placeholder="' + ph + '" autocomplete="' + ac + '" required></label>';
+  const views = {
+    login: () => '<h3 id="mTitle">Welcome back</h3><p class="lead">Log in to continue your training.</p>' +
+      '<form id="authForm" data-kind="login" novalidate>' + field('fEmail', 'Email', 'email', 'you@example.com', 'email') +
+      field('fPass', 'Password', 'password', 'Your password', 'current-password') +
+      '<p class="err" id="fErr" role="alert"></p><button type="submit" class="btn btn-primary">Log In</button></form>' +
+      '<p class="switch">New here? <button type="button" class="linkbtn" data-open="signup">Create an account</button></p>',
+    signup: () => '<h3 id="mTitle">Join Vanta Chess</h3><p class="lead">Free forever. No credit card needed.</p>' +
+      '<form id="authForm" data-kind="signup" novalidate>' + field('fName', 'Username', 'text', 'Choose a username', 'username') +
+      field('fEmail', 'Email', 'email', 'you@example.com', 'email') +
+      field('fPass', 'Password', 'password', 'At least 8 characters', 'new-password') +
+      '<p class="err" id="fErr" role="alert"></p><button type="submit" class="btn btn-primary">Create Free Account</button></form>' +
+      '<p class="switch">Already a member? <button type="button" class="linkbtn" data-open="login">Log in</button></p>',
+    demo: () => '<h3 id="mTitle">Demo coming soon</h3><p class="lead">We are putting the finishing touches on the Vanta Chess walkthrough. Meanwhile, try the board below.</p>' +
+      '<button type="button" class="btn btn-primary" id="demoGo">Try the Board</button>'
+  };
+  function openModal(type) {
+    if (!views[type]) return;
+    if (!overlay.classList.contains('open')) lastFocus = document.activeElement;
+    setMenu(false);
+    mBody.innerHTML = views[type]();
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const first = $('input', mBody) || $('button', mBody);
+    setTimeout(() => first && first.focus(), 60);
+  }
+  function closeModal() {
+    if (!overlay.classList.contains('open')) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  // Open buttons (static ones)
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => openModal(b.dataset.open)));
+  // Dynamic content inside modal (switch links, form submit, demo button)
+  mBody.addEventListener('click', e => {
+    const open = e.target.closest('[data-open]');
+    if (open) openModal(open.dataset.open);
+    if (e.target.closest('#demoGo')) { closeModal(); scrollToBoard(); }
+  });
+  mBody.addEventListener('submit', e => {
+    e.preventDefault();
+    const form = e.target, kind = form.dataset.kind;
+    const email = $('#fEmail', form).value.trim(), pass = $('#fPass', form).value;
+    const name = kind === 'signup' ? $('#fName', form).value.trim() : '';
+    const err = $('#fErr', form);
+    if (kind === 'signup' && name.length < 3) { err.textContent = 'Username must be at least 3 characters.'; return; }
+    if (!/^\S+@\S+\.\S+$/.test(email)) { err.textContent = 'Enter a valid email address.'; return; }
+    if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
+    closeModal();
+    showToast(kind === 'signup' ? 'Welcome to Vanta Chess, ' + name + '!' : 'Logged in. Welcome back!');
+  });
+  $('#mClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); setMenu(false); }
+  });
+
+  /* ---------- Chess engine (full rules) ---------- */
+  const FILES = 'abcdefgh';
+  const VAL = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
+  const GL = { r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟\uFE0E' };
+  const PP = {
+    p: '<circle cx="22.5" cy="14" r="5.5"/><path d="M18 21h9c1 4 3 6 4 10H14c1-4 3-6 4-10z"/>',
+    r: '<path d="M12 10h5v3h3.5v-3h4v3H28v-3h5v8l-3 3v10H15V21l-3-3z"/>',
+    n: '<path d="M13 33c0-8 3-14 9-18l-2-5 4-2 2 3c6 2 6 8 6 22z"/><circle cx="24.5" cy="15.5" r="1.2" fill="#888" stroke="none"/>',
+    b: '<circle cx="22.5" cy="8" r="2.6"/><path d="M22.5 11c5 3 7 7 6 11-.5 2-2 3-2 5l1 4h-10l1-4c0-2-1.5-3-2-5-1-4 1-8 6-11z"/>',
+    q: '<circle cx="10" cy="13" r="2.4"/><circle cx="16.5" cy="9" r="2.4"/><circle cx="22.5" cy="8" r="2.4"/><circle cx="28.5" cy="9" r="2.4"/><circle cx="35" cy="13" r="2.4"/><path d="M10 15l5 15h15l5-15-6.5 7-2-11-3 11-3-11-2 11z"/>',
+    k: '<path d="M21 3h3v3h3v3h-3v3h-3V9h-3V6h3z"/><path d="M22.5 13c8 0 11 5 9 11-1 3-2 5-2 7h-14c0-2-1-4-2-7-2-6 1-11 9-11z"/>'
+  };
+  // Set window.VANTA_PIECES = { wk: 'url', bq: 'url', ... } to use your own licensed piece images.
+  const sv = (p, sm) => {
+    const c = sm ? 'cpi' : 'pc', u = window.VANTA_PIECES && window.VANTA_PIECES[p];
+    if (u) return '<img class="' + c + '" src="' + u + '" alt="">';
+    const w = p[0] === 'w';
+    return '<svg class="' + c + '" viewBox="0 0 45 45" aria-hidden="true"><g fill="' + (w ? '#f4f4f4' : '#3b3835') + '" stroke="' + (w ? '#262421' : '#0b0b0b') + '" stroke-width="1.4" stroke-linejoin="round">' + PP[p[1]] + '<path d="M12.5 31h20v3h-20zM10.5 34h24v4h-24z"/></g></svg>';
+  };
+  const KN = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+  const BD = [[-1,-1],[-1,1],[1,-1],[1,1]], RD = [[-1,0],[1,0],[0,-1],[0,1]];
+  const QD = BD.concat(RD);
+  const opp = s => (s === 'w' ? 'b' : 'w');
+  const inb = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
+  const sqn = i => FILES[i & 7] + (8 - (i >> 3));
+
+  function initState() {
+    const b = Array(64).fill(null);
+    'rnbqkbnr'.split('').forEach((t, c) => { b[c] = 'b' + t; b[56 + c] = 'w' + t; b[8 + c] = 'bp'; b[48 + c] = 'wp'; });
+    return { b, turn: 'w', cr: { wK: 1, wQ: 1, bK: 1, bQ: 1 }, ep: -1, half: 0 };
+  }
+  // Is square i attacked by side `by`?
+  function attacked(b, i, by) {
+    const r = i >> 3, c = i & 7, pr = by === 'w' ? r + 1 : r - 1;
+    for (const dc of [-1, 1]) if (inb(pr, c + dc) && b[pr * 8 + c + dc] === by + 'p') return true;
+    for (const [dr, dc] of KN) { const y = r + dr, x = c + dc; if (inb(y, x) && b[y * 8 + x] === by + 'n') return true; }
+    for (const [dr, dc] of QD) { const y = r + dr, x = c + dc; if (inb(y, x) && b[y * 8 + x] === by + 'k') return true; }
+    for (const [ds, t] of [[BD, 'b'], [RD, 'r']]) for (const [dr, dc] of ds) {
+      let y = r + dr, x = c + dc;
+      while (inb(y, x)) {
+        const p = b[y * 8 + x];
+        if (p) { if (p[0] === by && (p[1] === t || p[1] === 'q')) return true; break; }
+        y += dr; x += dc;
+      }
+    }
+    return false;
+  }
+  function pseudo(st) {
+    const { b, turn: s, cr, ep } = st, out = [], o = opp(s);
+    const add = (f, t, x) => out.push(Object.assign({ f, t }, x));
+    for (let i = 0; i < 64; i++) {
+      const p = b[i];
+      if (!p || p[0] !== s) continue;
+      const r = i >> 3, c = i & 7, k = p[1];
+      if (k === 'p') {
+        const d = s === 'w' ? -1 : 1, y = r + d, home = s === 'w' ? 6 : 1, promo = (y === 0 || y === 7);
+        const push = (t, x) => { if (promo) ['q', 'r', 'b', 'n'].forEach(q => add(i, t, Object.assign({ pm: q }, x))); else add(i, t, x); };
+        if (inb(y, c) && !b[y * 8 + c]) {
+          push(y * 8 + c, {});
+          if (r === home && !b[(y + d) * 8 + c]) add(i, (y + d) * 8 + c, { dbl: 1 });
+        }
+        for (const dc of [-1, 1]) {
+          if (!inb(y, c + dc)) continue;
+          const t = y * 8 + c + dc;
+          if (b[t] && b[t][0] !== s) push(t, { cap: 1 });
+          else if (t === ep) add(i, t, { ep: 1, cap: 1 });
+        }
+      } else if (k === 'n' || k === 'k') {
+        for (const [dr, dc] of (k === 'n' ? KN : QD)) {
+          const y = r + dr, x = c + dc;
+          if (!inb(y, x)) continue;
+          const t = y * 8 + x;
+          if (!b[t] || b[t][0] !== s) add(i, t, b[t] ? { cap: 1 } : {});
+        }
+        const row = s === 'w' ? 7 : 0, h = row * 8;
+        if (k === 'k' && i === h + 4 && !attacked(b, i, o)) {
+          if (cr[s + 'K'] && !b[h + 5] && !b[h + 6] && b[h + 7] === s + 'r' && !attacked(b, h + 5, o) && !attacked(b, h + 6, o)) add(i, h + 6, { cs: 'K' });
+          if (cr[s + 'Q'] && !b[h + 3] && !b[h + 2] && !b[h + 1] && b[h] === s + 'r' && !attacked(b, h + 3, o) && !attacked(b, h + 2, o)) add(i, h + 2, { cs: 'Q' });
+        }
+      } else {
+        for (const [dr, dc] of (k === 'b' ? BD : k === 'r' ? RD : QD)) {
+          let y = r + dr, x = c + dc;
+          while (inb(y, x)) {
+            const t = y * 8 + x;
+            if (b[t]) { if (b[t][0] !== s) add(i, t, { cap: 1 }); break; }
+            add(i, t, {}); y += dr; x += dc;
+          }
+        }
+      }
+    }
+    return out;
+  }
+  function apply(st, m) {
+    const b = st.b.slice(), p = b[m.f], s = p[0], cr = Object.assign({}, st.cr), cap = b[m.t];
+    b[m.t] = m.pm ? s + m.pm : p; b[m.f] = null;
+    if (m.ep) b[m.t + (s === 'w' ? 8 : -8)] = null;
+    if (m.cs) { const h = (m.t >> 3) * 8; if (m.cs === 'K') { b[h + 5] = b[h + 7]; b[h + 7] = null; } else { b[h + 3] = b[h]; b[h] = null; } }
+    if (p[1] === 'k') { cr[s + 'K'] = 0; cr[s + 'Q'] = 0; }
+    [[0, 'bQ'], [7, 'bK'], [56, 'wQ'], [63, 'wK']].forEach(([q, k]) => { if (m.f === q || m.t === q) cr[k] = 0; });
+    return { b, turn: opp(s), cr, ep: m.dbl ? (m.f + m.t) / 2 : -1, half: (p[1] === 'p' || cap || m.ep) ? 0 : st.half + 1 };
+  }
+  function legal(st) {
+    return pseudo(st).filter(m => { const n = apply(st, m); return !attacked(n.b, n.b.indexOf(st.turn + 'k'), n.turn); });
+  }
+  function insufficient(b) { const x = b.filter(p => p && p[1] !== 'k'); return x.length === 0 || (x.length === 1 && 'nb'.includes(x[0][1])); }
+  function info(st) {
+    const ms = legal(st), chk = attacked(st.b, st.b.indexOf(st.turn + 'k'), opp(st.turn));
+    let over = null;
+    if (!ms.length) over = chk ? 'mate' : 'stalemate';
+    else if (st.half >= 100 || insufficient(st.b)) over = 'draw';
+    return { ms, chk, over };
+  }
+  function san(st, m, ms) {
+    const p = st.b[m.f], k = p[1];
+    if (m.cs) return m.cs === 'K' ? 'O-O' : 'O-O-O';
+    let t = '';
+    if (k === 'p') { if (m.cap) t += FILES[m.f & 7]; }
+    else {
+      t = k.toUpperCase();
+      const o = ms.filter(x => x !== m && x.t === m.t && st.b[x.f] === p);
+      if (o.length) { if (!o.some(x => (x.f & 7) === (m.f & 7))) t += FILES[m.f & 7]; else if (!o.some(x => (x.f >> 3) === (m.f >> 3))) t += 8 - (m.f >> 3); else t += sqn(m.f); }
+    }
+    if (m.cap) t += 'x';
+    t += sqn(m.t);
+    if (m.pm) t += '=' + m.pm.toUpperCase();
+    return t;
+  }
+  // Simple 2-ply material bot
+  const matOf = (sd, b) => b.reduce((a, p) => a + (p && p[0] === sd ? VAL[p[1]] : 0), 0);
+  const ev = b => matOf('w', b) - matOf('b', b);
+  function mm(st, d) {
+    if (!d) return ev(st.b);
+    const ms = legal(st), w = st.turn === 'w';
+    if (!ms.length) return attacked(st.b, st.b.indexOf(st.turn + 'k'), opp(st.turn)) ? (w ? -900 : 900) : 0;
+    let best = w ? -1e9 : 1e9;
+    for (const m of ms) { const v = mm(apply(st, m), d - 1); best = w ? Math.max(best, v) : Math.min(best, v); }
+    return best;
+  }
+
+  /* ---------- Hero decorative board ---------- */
+  const mini = $('#miniBoard');
+  initState().b.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = (((i >> 3) + (i & 7)) % 2) ? 'd' : 'l';
+    if (p) { d.innerHTML = sv(p); d.classList.add(p[0]); }
+    mini.appendChild(d);
+  });
+
+  /* ---------- Engine (alpha-beta + quiescence, optional Stockfish) ---------- */
+  const PV = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+  function ev2(b) {
+    let s = 0;
+    for (let i = 0; i < 64; i++) {
+      const p = b[i]; if (!p) continue;
+      const r = i >> 3, c = i & 7, w = p[0] === 'w', k = p[1], cd = 7 - Math.abs(c - 3.5) - Math.abs(r - 3.5);
+      let v = PV[k];
+      if (k === 'p') v += (w ? 6 - r : r - 1) * 9 + (c > 1 && c < 6 ? cd * 2 : 0);
+      else if (k === 'n' || k === 'b') v += cd * 7;
+      else if (k === 'q') v += cd * 2;
+      else if (k === 'k') v += (w ? r === 7 : r === 0) ? 15 : 0;
+      s += w ? v : -v;
+    }
+    return s;
+  }
+  let dl = 0;
+  const ord = (st, ms) => ms.map(m => [m, (st.b[m.t] ? 10 * PV[st.b[m.t][1]] - PV[st.b[m.f][1]] : 0) + (m.pm ? 800 : 0)]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+  function qs(st, a, b, sg, d) {
+    const sp = sg * ev2(st.b);
+    if (d <= 0 || sp >= b) return Math.max(sp, a) >= b ? b : Math.max(sp, a);
+    if (sp > a) a = sp;
+    for (const m of ord(st, legal(st).filter(x => x.cap))) {
+      const v = -qs(apply(st, m), -b, -a, -sg, d - 1);
+      if (v >= b) return b; if (v > a) a = v;
+    }
+    return a;
+  }
+  function ab(st, d, a, b, sg, ply) {
+    if (Date.now() > dl) throw 0;
+    const ms = legal(st);
+    if (!ms.length) return attacked(st.b, st.b.indexOf(st.turn + 'k'), opp(st.turn)) ? -99000 + ply : 0;
+    if (d <= 0) return qs(st, a, b, sg, 4);
+    for (const m of ord(st, ms)) {
+      const v = -ab(apply(st, m), d - 1, -b, -a, -sg, ply + 1);
+      if (v >= b) return b; if (v > a) a = v;
+    }
+    return a;
+  }
+  function think(st, depth, ms, noise) {
+    dl = Date.now() + ms;
+    const sg = st.turn === 'w' ? 1 : -1, all = legal(st);
+    let best = all[0], bs = 0;
+    for (let d = 1; d <= depth; d++) {
+      try {
+        let bm = null, bv = -1e9, raw = 0;
+        for (const m of ord(st, all)) {
+          const v = -ab(apply(st, m), d - 1, -1e9, 1e9, -sg, 1), vn = v + (d === depth ? Math.random() * noise : 0);
+          if (vn > bv) { bv = vn; bm = m; raw = v; }
+        }
+        best = bm; bs = raw * sg;
+      } catch (x) { break; }
+    }
+    return { m: best, cp: bs };
+  }
+  let sf = null, sfOK = false, sfCb = null;
+  try {
+    const u = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js';
+    const lu = new URL('stockfish.js', location.href).href;
+    sf = new Worker(URL.createObjectURL(new Blob(['try{importScripts("' + lu + '")}catch(e){importScripts("' + u + '")}'], { type: 'application/javascript' })));
+    sf.onmessage = e => {
+      const l = String(e.data);
+      if (l === 'uciok') sfOK = true;
+      else if (sfCb && l.startsWith('info') && l.includes(' score ')) sfCb.info = l;
+      else if (sfCb && l.startsWith('bestmove')) { const c = sfCb; sfCb = null; c.f(l.split(' ')[1], c.info); }
+    };
+    sf.onerror = () => { sfOK = false; if (sfCb) { const c = sfCb; sfCb = null; c.f(null); } };
+    sf.postMessage('uci');
+  } catch (x) { sf = null; }
+  function sfGo(fen, mt, skill, f) {
+    const cb = sfCb = { f, info: '' };
+    setTimeout(() => { if (sfCb === cb) { sfCb = null; f(null); } }, mt + 5000);
+    sf.postMessage('setoption name Skill Level value ' + skill);
+    sf.postMessage('position fen ' + fen);
+    sf.postMessage('go movetime ' + mt);
+  }
+  function toFEN(st) {
+    let s = '';
+    for (let r = 0; r < 8; r++) {
+      let e = 0;
+      for (let c = 0; c < 8; c++) { const p = st.b[r * 8 + c]; if (!p) e++; else { if (e) { s += e; e = 0; } s += p[0] === 'w' ? p[1].toUpperCase() : p[1]; } }
+      if (e) s += e; if (r < 7) s += '/';
+    }
+    const c = (st.cr.wK ? 'K' : '') + (st.cr.wQ ? 'Q' : '') + (st.cr.bK ? 'k' : '') + (st.cr.bQ ? 'q' : '');
+    return s + ' ' + st.turn + ' ' + (c || '-') + ' ' + (st.ep >= 0 ? sqn(st.ep) : '-') + ' ' + st.half + ' 1';
+  }
+  function fromFEN(f) {
+    const p = f.trim().split(/\s+/), b = [];
+    if (p.length < 2) return null;
+    for (const ch of p[0]) { if (ch === '/') continue; if (/\d/.test(ch)) for (let i = 0; i < +ch; i++) b.push(null); else if (/[pnbrqkPNBRQK]/.test(ch)) b.push((ch === ch.toUpperCase() ? 'w' : 'b') + ch.toLowerCase()); else return null; }
+    if (b.length !== 64 || b.filter(x => x === 'wk').length !== 1 || b.filter(x => x === 'bk').length !== 1) return null;
+    const c = p[2] || '-', st = { b, turn: p[1] === 'b' ? 'b' : 'w', cr: { wK: +c.includes('K'), wQ: +c.includes('Q'), bK: +c.includes('k'), bQ: +c.includes('q') }, ep: p[3] && p[3] !== '-' ? FILES.indexOf(p[3][0]) + (8 - p[3][1]) * 8 : -1, half: +p[4] || 0 };
+    return attacked(b, b.indexOf(opp(st.turn) + 'k'), st.turn) ? null : st;
+  }
+  const fromUci = (st, u) => u && legal(st).find(m => sqn(m.f) + sqn(m.t) + (m.pm || '') === u);
+
+  /* ---------- Bots, time controls, themes ---------- */
+  const BOTS = [
+    { n: 'Sofia', r: 1000, f: 'S' }, { n: 'Marcus', r: 1300, f: 'M' }, { n: 'Charles', r: 1600, f: 'C' }, { n: 'Elena', r: 1900, f: 'E' },
+    { n: 'Mikhail', r: 2200, f: 'Mi' }, { n: 'Robert', r: 2500, f: 'R' }, { n: 'Anna', r: 2800, f: 'A' }, { n: 'Vanta', r: 3000, f: 'V' }
+  ];
+  const TCS = [[1, 0], [1, 1], [2, 1], [3, 0], [3, 2], [5, 0], [10, 0], [10, 5], [15, 3], [30, 0]];
+  const tcl = t => t[0] + (t[1] ? '+' + t[1] : '') + ' min';
+  const catOf = t => { const e = t[0] * 60 + 40 * t[1]; return e < 180 ? 'bullet' : e < 480 ? 'blitz' : 'rapid'; };
+  const THEMES = [['neo', 'Neo Green'], ['wood', 'Wood'], ['ocean', 'Ocean'], ['violet', 'Violet'], ['neon', 'Neon']];
+
+  /* ---------- State ---------- */
+  const boardEl = $('#board'), statusEl = $('#status'), movesEl = $('#moves'), promoEl = $('#promo');
+  let M = 'play', cur = initState(), hist = [], sel = null, last = [], flip = false, busy = false, pend = null, res = info(cur), gen = 0;
+  let me = 'w', botI = BOTS[2], tc = TCS[5], live = false, ended = false, endMsg = '', clk = { w: 0, b: 0 }, lastT = 0, edit = null, puz = null, pzId = 1;
+  const btns = [];
+  for (let i = 0; i < 64; i++) { const b = document.createElement('button'); b.type = 'button'; b.dataset.i = i; boardEl.appendChild(b); btns.push(b); }
+  boardEl.dataset.th = 'neo';
+  ['top', 'bot'].forEach(p => $('#' + p + 'Bar').insertAdjacentHTML('beforeend', '<b class="clk" id="' + p + 'Clk"></b>'));
+  const fmt = ms => { ms = Math.max(0, ms); const s = Math.ceil(ms / 1000); return ms < 10000 ? (ms / 1000).toFixed(1) : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const START = { p: 8, n: 2, b: 2, r: 2, q: 1 };
+  function taken(sd) {
+    const n = { p: 0, n: 0, b: 0, r: 0, q: 0 };
+    cur.b.forEach(p => { if (p && p[0] === sd && p[1] !== 'k') n[p[1]]++; });
+    return 'qrbnp'.split('').map(t => sv(sd + t, 1).repeat(Math.max(0, START[t] - n[t]))).join('');
+  }
+  function bar(pre, sd) {
+    const isBot = M === 'play' && sd !== me, av = $('#' + pre + 'Av');
+    av.innerHTML = isBot ? botI.f : sv(sd + 'k'); av.className = 'av ' + (isBot ? 'bot' : sd);
+    $('#' + pre + 'Name').textContent = isBot ? botI.n + ' (' + botI.r + ')' : (M === 'play' ? 'You' : sd === 'w' ? 'White' : 'Black');
+    $('#' + pre + 'Cap').innerHTML = taken(opp(sd));
+    const diff = matOf(sd, cur.b) - matOf(opp(sd), cur.b);
+    $('#' + pre + 'Adv').textContent = diff > 0 ? '+' + diff : '';
+    $('#' + pre + 'Bar').classList.toggle('turn', !res.over && cur.turn === sd);
+    $('#' + pre + 'Clk').textContent = M === 'play' && (live || ended) ? fmt(clk[sd]) : '';
+  }
+  const keyOf = s => s.b.map(x => x || '-').join('') + s.turn + s.cr.wK + s.cr.wQ + s.cr.bK + s.cr.bQ + s.ep;
+  function render() {
+    res = info(cur);
+    if (!res.over && hist.length >= 8) { const k = keyOf(cur); if (hist.filter(h => keyOf(h.st) === k).length >= 2) res.over = 'draw'; }
+    const tg = new Map();
+    if (sel !== null) res.ms.filter(m => m.f === sel).forEach(m => tg.set(m.t, m));
+    const ksq = res.chk ? cur.b.indexOf(cur.turn + 'k') : -1;
+    btns.forEach((b, i) => {
+      const p = cur.b[i], r = i >> 3, c = i & 7, dr = flip ? 7 - r : r, dc = flip ? 7 - c : c;
+      b.style.order = dr * 8 + dc;
+      let cls = 'sq ' + ((r + c) % 2 ? 'd' : 'l') + (p ? ' ' + p[0] : '');
+      if (i === sel) cls += ' pick'; else if (last.indexOf(i) > -1) cls += ' last';
+      if (i === ksq) cls += ' chk';
+      if (tg.has(i)) cls += (p || tg.get(i).ep) ? ' cp' : ' mv';
+      b.className = cls;
+      b.innerHTML = (p ? sv(p) : '') + (dc === 0 ? '<i class="co r">' + (8 - r) + '</i>' : '') + (dr === 7 ? '<i class="co f">' + FILES[c] + '</i>' : '');
+      b.setAttribute('aria-label', sqn(i) + (p ? ', ' + (p[0] === 'w' ? 'white ' : 'black ') + { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }[p[1]] : ', empty') + (tg.has(i) ? ', legal move' : ''));
+    });
+    bar('top', flip ? 'w' : 'b'); bar('bot', flip ? 'b' : 'w');
+    let t;
+    if (endMsg) t = endMsg;
+    else if (res.over === 'mate') t = (opp(cur.turn) === 'w' ? 'White' : 'Black') + ' wins by checkmate';
+    else if (res.over === 'stalemate') t = 'Draw by stalemate';
+    else if (res.over === 'draw') t = 'Draw';
+    else if (M === 'play' && !live) t = 'Pick a bot and time control, then Start Game';
+    else if (busy) t = botI.n + ' is thinking…';
+    else t = (cur.turn === 'w' ? 'White' : 'Black') + ' to move' + (res.chk ? ' — check!' : '');
+    statusEl.textContent = XS(t); statusEl.className = res.over || endMsg ? 'end' : '';
+    let h = '';
+    hist.forEach((e, i) => { if (i % 2 === 0) h += '<span class="n">' + (i / 2 + 1) + '.</span>'; h += '<span' + (i === hist.length - 1 ? ' class="cur"' : '') + '>' + e.san + '</span>'; });
+    if (hist.length % 2 === 1) h += '<span></span>';
+    movesEl.innerHTML = h || '<span class="empty">No moves yet.</span>';
+    movesEl.scrollTop = movesEl.scrollHeight;
+    $('#turnBtn').textContent = 'Side: ' + (cur.turn === 'w' ? 'White' : 'Black');
+    const og = M === 'ana' && hist.length && keyOf(hist[0].st) === keyOf(initState()) ? openingOf() : null;
+    $('#opnName').textContent = M !== 'ana' || !hist.length ? '' : og ? OLT('op') + ': ' + og.n : OLT('oob');
+    return t;
+  }
+
+  /* ---------- Stats (rating history, stored locally) ---------- */
+  let mem = null;
+  const stats = () => { try { return JSON.parse(localStorage.getItem('vc_stats')) || mem || { r: { bullet: 1000, blitz: 1000, rapid: 1000 }, log: [] }; } catch (x) { return mem || { r: { bullet: 1000, blitz: 1000, rapid: 1000 }, log: [] }; } };
+  const saveStats = S => { mem = S; try { localStorage.setItem('vc_stats', JSON.stringify(S)); } catch (x) { } };
+  function weekly(cat) {
+    const S = stats(), cut = Date.now() - 7 * 864e5, old = S.log.filter(l => l.c === cat && l.t < cut).pop();
+    return { r: S.r[cat], d: S.r[cat] - (old ? old.r : 1000), g: S.log.filter(l => l.c === cat && l.t >= cut).length };
+  }
+  const sgn = n => (n > 0 ? '+' : '') + n;
+  function statsText() {
+    return ['bullet', 'blitz', 'rapid'].map(c => { const w = weekly(c); return c[0].toUpperCase() + c.slice(1) + ': ' + w.r + ' (' + sgn(w.d) + ' in the last 7 days, ' + w.g + ' games)'; }).join('\n');
+  }
+  function renderStats() {
+    $('#sPan').innerHTML = ['bullet', 'blitz', 'rapid'].map(c => { const w = weekly(c); return '<div class="srow"><span>' + c[0].toUpperCase() + c.slice(1) + ' · ' + w.g + ' games / 7d</span><b>' + w.r + ' <span class="' + (w.d >= 0 ? 'up' : 'dn') + '">' + sgn(w.d) + '</span></b></div>'; }).join('') +
+      '<p class="note">Ratings update after every finished bot game. Ask the AI Coach for a weekly report.</p>';
+  }
+
+  /* ---------- Game flow ---------- */
+  function finish(w, why) {
+    if (ended) return;
+    ended = true; live = false; busy = false; gen++;
+    const cat = catOf(tc), S = stats(), R = S.r[cat], sc = w === 'd' ? .5 : (w === me ? 1 : 0);
+    const nr = Math.round(R + 32 * (sc - 1 / (1 + Math.pow(10, (botI.r - R) / 400))));
+    S.r[cat] = nr; S.log.push({ t: Date.now(), c: cat, r: nr, s: sc }); saveStats(S);
+    endMsg = (w === 'd' ? 'Draw' : w === me ? 'You win' : botI.n + ' wins') + ' — ' + why + ' (' + sgn(nr - R) + ' ' + cat + ')';
+    render(); showToast(endMsg); renderStats();
+  }
+  function play(m) {
+    const mover = cur.turn, n = apply(cur, m), inf = info(n);
+    hist.push({ st: cur, m, san: san(cur, m, res.ms) + (inf.over === 'mate' ? '#' : inf.chk ? '+' : '') });
+    cur = n; last = [m.f, m.t]; sel = null; moveSound(m);
+    if (live && hist.length > 2) clk[mover] += tc[1] * 1000;
+    render();
+    if (M === 'play' && live && res.over) finish(res.over === 'mate' ? mover : 'd', res.over === 'mate' ? 'checkmate' : 'draw');
+  }
+  function onMove(m) {
+    if (M === 'puz') return puzMove(m);
+    play(m);
+    if (M === 'play' && live && !res.over && cur.turn !== me) botMove();
+  }
+  function botMove() {
+    busy = true; render();
+    const g = gen, st = cur, r = botI.r, bs = cur.turn, t0 = Date.now();
+    const hold = () => { const base = tc[0] >= 10 ? 1800 : tc[0] >= 3 ? 1100 : 350; return Math.min(clk[bs] / 12, (base + Math.random() * base * 2.2) * (hist.length < 8 ? .45 : 1) * Math.min(1.6, .5 + res.ms.length / 30) * (r > 2000 ? 1.3 : 1)); };
+    const done = m => { if (g !== gen) return; setTimeout(() => { if (g !== gen) return; busy = false; if (m) onMovePlay(m); else render(); }, Math.max(0, hold() - (Date.now() - t0))); };
+    const ms = Math.max(150, Math.min(r > 2000 ? 900 : 650, clk[bs] / 25));
+    if (sfOK && r >= 1800) sfGo(toFEN(st), Math.round(ms), Math.min(20, Math.round((r - 1400) / 80)), u => done(fromUci(st, u) || think(st, 3, 800, 0).m));
+    else setTimeout(() => done(think(st, r < 1300 ? 2 : r < 1900 ? 3 : 4, ms, Math.max(0, (2300 - r) / 3)).m), 40);
+  }
+  function onMovePlay(m) { play(m); if (live && !res.over && cur.turn !== me) botMove(); }
+  function hidePromo() { pend = null; promoEl.hidden = true; promoEl.innerHTML = ''; }
+  function reset(fen) { gen++; busy = false; cur = fen || initState(); hist = []; sel = null; last = []; hidePromo(); endMsg = ''; }
+  function startGame() {
+    const v = $('#sideSel').value; me = v === 'r' ? (Math.random() < .5 ? 'w' : 'b') : v;
+    reset(); live = true; ended = false; flip = me === 'b'; setFocus(true);
+    clk = { w: tc[0] * 60000, b: tc[0] * 60000 }; lastT = Date.now();
+    render(); showToast('vs ' + botI.n + ' (' + botI.r + ') · ' + tcl(tc));
+    if (me === 'b') botMove();
+  }
+  setInterval(() => {
+    const now = Date.now(), dt = now - lastT; lastT = now;
+    if (!live || hist.length < 2) return;
+    clk[cur.turn] -= dt;
+    $('#topClk').textContent = fmt(clk[flip ? 'w' : 'b']); $('#botClk').textContent = fmt(clk[flip ? 'b' : 'w']);
+    if (clk[cur.turn] <= 0) finish(opp(cur.turn), 'time out');
+  }, 200);
+  function setFocus(on) { document.body.classList.toggle('gaming', on); if (!on) window.scrollTo(0, $('#play').offsetTop - 70); }
+  function scrollToBoard() { $('#play').scrollIntoView({ behavior: 'smooth' }); }
+
+  /* ---------- Puzzles: 10,000 deterministic, engine-verified ---------- */
+  function rng(s) { return () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const mate1 = st => { const s = st.turn; return legal(st).filter(m => { const n = apply(st, m); return attacked(n.b, n.b.indexOf(opp(s) + 'k'), s) && !legal(n).length; }); };
+  function mate2(st) {
+    const s = st.turn;
+    return legal(st).filter(m => { const n = apply(st, m); if (!attacked(n.b, n.b.indexOf(opp(s) + 'k'), s)) return false; const rs = legal(n); return rs.length > 0 && rs.every(r => mate1(apply(n, r)).length); });
+  }
+  const PZC = [['all', 'All'], ['m1', 'Mate in 1'], ['m2', 'Mate in 2'], ['back', 'Back-rank'], ['sac', 'Sacrifice'], ['fork', 'Fork']];
+  const PZN = { m1: 'Mate in 1', m2: 'Mate in 2', back: 'Back-rank mate', sac: 'Sacrifice', fork: 'Fork' };
+  let pzCat = 'all';
+  const pzCache = new Map(), pzOf = id => pzCat === 'all' ? ['m1', 'back', 'm2', 'fork', 'sac'][id % 5] : pzCat;
+  const mvEq = (a, b) => a.f === b.f && a.t === b.t && a.pm === b.pm;
+  function forks(st) {
+    const s = st.turn, o = opp(s), all = legal(st), base = matOf(s, st.b) - matOf(o, st.b);
+    if (all.some(m => st.b[m.t] && VAL[st.b[m.t][1]] >= 3)) return [];
+    return all.filter(m => {
+      if (m.cap) return false;
+      const n = apply(st, m), p = n.b[m.t][1];
+      if (p === 'k' || attacked(n.b, m.t, o)) return false;
+      const tg = pseudo(Object.assign({}, n, { turn: s })).filter(x => x.f === m.t && x.cap && n.b[x.t][1] !== 'p' && (n.b[x.t][1] === 'k' || VAL[n.b[x.t][1]] > VAL[p] || !attacked(n.b, x.t, o)));
+      if (tg.length < 2) return false;
+      const v = mm(n, 2); return (s === 'w' ? v : -v) - base >= 2;
+    });
+  }
+  function genPuz(id) {
+    const key = pzCat + id; if (pzCache.has(key)) return pzCache.get(key);
+    const c = pzOf(id), R = rng(id * 7919 + 13 + PZC.findIndex(x => x[0] === pzCat) * 110003);
+    let out = null, fb = null;
+    for (let a = 0; a < 1500 && !out; a++) {
+      let st = initState(); const L = 16 + Math.floor(R() * 40); let ok = true;
+      for (let i = 0; i < L; i++) { const ms = legal(st); if (!ms.length) { ok = false; break; } st = apply(st, ms[Math.floor(R() * ms.length)]); }
+      if (!ok || legal(st).length < 4) continue;
+      const s = st.turn, o = opp(s), v = (cat, k, sol) => ({ st, cat, k, sol, me: s, r: ({ m1: 800, back: 1000, fork: 1250, m2: 1400, sac: 1700 })[cat] + (id * 37) % 300, stage: 0 });
+      const m1 = mate1(st);
+      if (m1.length && !fb) fb = v('m1', 1, m1);
+      if (c === 'm1' && m1.length) out = v('m1', 1, m1);
+      else if (c === 'back') { const b = m1.filter(m => 'rq'.includes(st.b[m.f][1]) && (apply(st, m).b.indexOf(o + 'k') >> 3) === (o === 'b' ? 0 : 7)); if (b.length) out = v('back', 1, b); }
+      else if (c === 'fork') { const f = forks(st); if (f.length) out = v('fork', 0, f); }
+      else if ((c === 'm2' || c === 'sac') && !m1.length) { const s2 = mate2(st); if (s2.length) { const sac = s2.filter(m => VAL[st.b[m.f][1]] >= 3 && attacked(apply(st, m).b, m.t, o)); if (c === 'sac' ? sac.length : !sac.length) out = v(c, 2, s2); } }
+      if (a > 400 && !out && fb) out = fb;
+    }
+    pzCache.set(key, out); return out;
+  }
+  function loadPuz(id) {
+    pzId = Math.max(1, Math.min(11000, id | 0 || 1));
+    const p = genPuz(pzId); if (!p) return showToast('Could not build that puzzle, try another');
+    puz = Object.assign({}, p, { stage: 0, fail: 0 }); setFocus(true);
+    reset(p.st); flip = p.me === 'b'; ended = false;
+    $('#pzInfo').textContent = '#' + pzId + ' · ' + PZN[p.cat] + ' · Puzzle rating ' + p.r + ' · Your puzzle rating ' + (stats().pz || 1000) + ' · ' + (p.me === 'w' ? 'White' : 'Black') + ' to move';
+    render();
+  }
+  function pzRate(ok) {
+    const S = stats(), R = S.pz || 1000, e = 1 / (1 + Math.pow(10, (puz.r - R) / 400));
+    S.pz = Math.max(100, R + Math.round(24 * ((ok ? 1 : 0) - e))); saveStats(S);
+    $('#pzInfo').textContent = $('#pzInfo').textContent.replace(/Your puzzle rating \d+/, 'Your puzzle rating ' + S.pz);
+  }
+  function puzMove(m) {
+    if (puz.k !== 2 || puz.stage === 1) {
+      const ok = puz.k === 0 ? puz.sol.some(x => mvEq(x, m)) : info(apply(cur, m)).over === 'mate';
+      if (ok) { play(m); endMsg = '✓ Solved!'; render(); showToast('Solved! ✓ ' + PZN[puz.cat]); if (!puz.fail) pzRate(1); } else bad();
+    } else if (puz.sol.some(x => mvEq(x, m))) {
+      play(m); puz.stage = 1;
+      setTimeout(() => { if (res.ms.length) play(res.ms[0]); }, 450);
+    } else bad();
+  }
+  function bad() { sel = null; render(); showToast('Not that one, try again'); if (!puz.fail) { puz.fail = 1; pzRate(0); } }
+  $('#pzCats').innerHTML = PZC.map(c => '<button type="button" class="chip' + (c[0] === 'all' ? ' on' : '') + '" data-c="' + c[0] + '">' + c[1] + '</button>').join('');
+  $('#pzCats').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (!b) return; pzCat = b.dataset.c; $$('#pzCats .chip').forEach(c => c.classList.toggle('on', c === b)); loadPuz(1); });
+
+  /* ---------- Analysis ---------- */
+  function analyze() {
+    if (live) return showToast('Analysis is locked during a live game');
+    const st = cur, out = $('#anaOut'), sg = st.turn === 'w' ? 1 : -1;
+    if (res.over) { out.textContent = 'Game is over.'; return; }
+    out.textContent = 'Analyzing…';
+    const show = (cp, mv, src) => {
+      const w = Math.abs(cp) > 90000 ? 'M' : (cp / 100).toFixed(2);
+      $('#evFill').style.width = Math.max(3, Math.min(97, 50 + 50 * Math.tanh(cp / 400))) + '%';
+      out.textContent = 'Eval ' + (cp > 0 ? '+' : '') + w + ' · Best: ' + mv + ' · ' + src;
+    };
+    if (sfOK) sfGo(toFEN(st), 2000, 20, (u, info) => {
+      const m = fromUci(st, u); if (!m) { out.textContent = 'No result'; return; }
+      const mt = /score (cp|mate) (-?\d+)/.exec(info || ''); let cp = 0;
+      if (mt) cp = (mt[1] === 'mate' ? (+mt[2] > 0 ? 99000 : -99000) : +mt[2]) * sg;
+      show(cp, san(st, m, legal(st)), 'Stockfish');
+    });
+    else setTimeout(() => { const r = think(st, 5, 3500, 0); show(r.cp, san(st, r.m, legal(st)), 'Vanta engine (Stockfish unavailable offline)'); }, 30);
+  }
+  const PAL = ['wk', 'wq', 'wr', 'wb', 'wn', 'wp', 'bk', 'bq', 'br', 'bb', 'bn', 'bp', 'x'];
+  $('#pal').innerHTML = PAL.map(p => '<button type="button" class="chip" data-p="' + p + '">' + (p === 'x' ? '🗑' : sv(p, 1)) + '</button>').join('');
+  $('#pal').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; edit = b.dataset.p; $$('#pal .chip').forEach(c => c.classList.toggle('on', c === b)); });
+  function fixCR() {
+    const b = cur.b, c = cur.cr;
+    c.wK = +(b[60] === 'wk' && b[63] === 'wr' && c.wK); c.wQ = +(b[60] === 'wk' && b[56] === 'wr' && c.wQ);
+    c.bK = +(b[4] === 'bk' && b[7] === 'br' && c.bK); c.bQ = +(b[4] === 'bk' && b[0] === 'br' && c.bQ);
+  }
+  $('#anaNew').onclick = () => { edit = null; $('#pal').hidden = true; reset(); render(); $('#anaOut').textContent = 'New analysis. Move both sides freely.'; };
+  $('#anaSetup').onclick = () => {
+    if (live) return showToast('Locked during a live game');
+    if (edit === null) { edit = 'x'; $('#pal').hidden = false; reset(Object.assign({}, cur, { b: cur.b.slice(), cr: Object.assign({}, cur.cr) })); showToast('Pick a piece, tap squares. Tap Set up again to finish.'); }
+    else { edit = null; $('#pal').hidden = true; fixCR(); cur.ep = -1; const f = fromFEN(toFEN(cur)); if (f) { cur = f; showToast('Position set'); } else showToast('Invalid position (need both kings, side to move not giving check)'); }
+    render();
+  };
+  $('#anaRun').onclick = analyze;
+  $('#anaClear').onclick = () => { if (live) return showToast('Locked during a live game'); edit = 'x'; $('#pal').hidden = false; reset({ b: Array(64).fill(null), turn: cur.turn, cr: { wK: 0, wQ: 0, bK: 0, bQ: 0 }, ep: -1, half: 0 }); render(); showToast('Board cleared. Place pieces, then tap Set up position'); };
+  $('#anaUndo').onclick = () => { if (!hist.length) return; cur = hist.pop().st; const l = hist[hist.length - 1]; last = l ? [l.m.f, l.m.t] : []; sel = null; render(); };
+  $('#turnBtn').onclick = () => { if (M !== 'ana' || live) return; cur = Object.assign({}, cur, { turn: opp(cur.turn), ep: -1 }); render(); };
+  $('#fenLoad').onclick = () => { const f = fromFEN($('#fen').value); if (f && M === 'ana') { reset(f); render(); showToast('FEN loaded'); } else showToast('Invalid FEN'); };
+  $('#fenCopy').onclick = () => { const f = toFEN(cur); $('#fen').value = f; try { navigator.clipboard.writeText(f); } catch (x) { } showToast('FEN copied'); };
+
+  /* ---------- AI Coach (chess-only, off during live games) ---------- */
+  const KB = [
+    [/immortal|anderssen.*kieseritzky/i, 'The Immortal Game (Anderssen–Kieseritzky, London 1851): Anderssen sacrificed both rooks and his queen for development and attack, finishing with a checkmate using just three minor pieces. It is the textbook case of initiative and piece activity beating material.'],
+    [/evergreen/i, 'The Evergreen Game (Anderssen–Dufresne, 1852): a dazzling attacking game featuring a quiet rook-lift and queen sacrifice theme, ending in a mating net. It shows how coordinated pieces overwhelm an uncastled king.'],
+    [/opera/i, 'The Opera Game (Morphy vs. the Duke of Brunswick and Count Isouard, Paris 1858): Morphy developed fast, opened lines, and sacrificed his queen to finish with a mate. It is the best lesson in rapid development and open lines.'],
+    [/century|byrne|fischer.*1956/i, "The Game of the Century (Byrne–Fischer, 1956): 13-year-old Bobby Fischer played 17…Be6!!, sacrificing his queen for a huge attack and winning heavy material with a brilliant queenside combination."],
+    [/topalov|1999|rxd4/i, "Kasparov–Topalov, Wijk aan Zee 1999: Kasparov's rook sacrifice 24.Rxd4!! led to a king hunt across the board — often called one of the greatest attacking games ever played."],
+    [/deep blue|1997/i, 'Kasparov vs. Deep Blue (1997): Deep Blue won the match 3.5–2.5. Game 6 was a quick loss for Kasparov in the Caro-Kann after a known knight sacrifice, a historic moment for computer chess.'],
+    [/kasparov|fischer|carlsen|capablanca|morphy|tal|karpov|anand|magnus/i, 'Quick profiles: Morphy = fast development; Capablanca = pure technique and endgames; Tal = wild sacrificial attacks; Fischer = precision and opening depth; Karpov = positional squeeze; Kasparov = dynamic initiative; Carlsen = grinding small edges in equal positions. Ask me about a specific game.'],
+    [/sicilian/i, 'The Sicilian (1.e4 c5) leads to unbalanced positions: Black fights for the center from the flank and gets queenside counterplay. Main lines include the Najdorf, Dragon, and Scheveningen.'],
+    [/italian|ruy|lopez|e4 e5/i, 'After 1.e4 e5 2.Nf3 Nc6, White chooses between the Italian (3.Bc4: fast development, central play) and the Ruy Lopez (3.Bb5: long-term pressure on the e5 defender). Both teach core principles.'],
+    [/queen.?s gambit|d4|slav|london/i, "The Queen's Gambit (1.d4 d5 2.c4) offers a pawn to deflect Black's center pawn; Black can accept, decline (2…e6), or play the Slav (2…c6). The London System is a solid alternative with Bf4 and e3."],
+    [/opening|gambit/i, 'Opening principles: control the center, develop knights before bishops, castle early, avoid moving the same piece twice, and do not bring the queen out too soon.'],
+    [/endgame|rook ending|king and pawn|opposition/i, 'Endgame essentials: activate your king, use opposition in king-and-pawn endings, put rooks behind passed pawns, and remember Lucena and Philidor as the key rook-endgame positions.'],
+    [/tactic|fork|pin|skewer|sacrifice|combination/i, 'Core tactics: forks, pins, skewers, discovered attacks, deflection, and back-rank mates. Before each move ask: checks, captures, threats — for both sides.'],
+    [/strategy|plan|positional|weak|outpost|pawn structure/i, 'Positional play: improve your worst piece, create outposts, fix weaknesses, trade pieces when ahead, and keep pawn structure healthy (avoid isolated or doubled pawns without compensation).'],
+    [/rating|stats|progress|week|improv|elo/i, null]
+  ];
+  const GM = [
+    { k: /immortal|بی.?مرگ|جاودان/i, n: 'The Immortal Game', d: 'Anderssen – Kieseritzky, London 1851 (1-0)', fa: 'آندرسن دو رخ و وزیرش را فدا کرد و با سه مهره‌ی سبک مات کرد.', i: 'Initiative and development beat material: Anderssen gave up both rooks and the queen.', p: '1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 b5 5.Bxb5 Nf6 6.Nf3 Qh6 7.d3 Nh5 8.Nh4 Qg5 9.Nf5 c6 10.g4 Nf6 11.Rg1 cxb5 12.h4 Qg6 13.h5 Qg5 14.Qf3 Ng8 15.Bxf4 Qf6 16.Nc3 Bc5 17.Nd5 Qxb2 18.Bd6 Bxg1 19.e5 Qxa1+ 20.Ke2 Na6 21.Nxg7+ Kd8 22.Qf6+ Nxf6 23.Be7# 1-0' },
+    { k: /evergreen|همیشه.?سبز/i, n: 'The Evergreen Game', d: 'Anderssen – Dufresne, Berlin 1852 (1-0)', fa: 'یک حمله‌ی درخشان با فدای وزیر و دو رخ برای مات نهایی.', i: 'Rook lift, then a queen sacrifice to finish with a mating net around an uncastled king.', p: '1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4 Bxb4 5.c3 Ba5 6.d4 exd4 7.O-O d3 8.Qb3 Qf6 9.e5 Qg6 10.Re1 Nge7 11.Ba3 b5 12.Qxb5 Rb8 13.Qa4 Bb6 14.Nbd2 Bb7 15.Ne4 Qf5 16.Bxd3 Qh5 17.Nf6+ gxf6 18.exf6 Rg8 19.Rad1 Qxf3 20.Rxe7+ Nxe7 21.Qxd7+ Kxd7 22.Bf5+ Ke8 23.Bd7+ Kf8 24.Bxe7# 1-0' },
+    { k: /opera|اپرا/i, n: 'The Opera Game', d: 'Morphy – Duke of Brunswick & Count Isouard, Paris 1858 (1-0)', fa: 'درس کلاسیک رشد سریع مهره‌ها و باز کردن خطوط.', i: 'Rapid development and open lines; the queen sacrifice leads to a forced mate.', p: '1.e4 e5 2.Nf3 d6 3.d4 Bg4 4.dxe5 Bxf3 5.Qxf3 dxe5 6.Bc4 Nf6 7.Qb3 Qe7 8.Nc3 c6 9.Bg5 b5 10.Nxb5 cxb5 11.Bxb5+ Nbd7 12.O-O-O Rd8 13.Rxd7 Rxd7 14.Rd1 Qe6 15.Bxd7+ Nxd7 16.Qb8+ Nxb8 17.Rd8# 1-0' },
+    { k: /century|byrne|قرن|برن|fischer|فیشر/i, n: 'The Game of the Century', d: 'D. Byrne – R. Fischer, New York 1956 (0-1)', fa: 'فیشر ۱۳ ساله با فدای وزیر (۱۷…Be6!!) برنده شد.', i: '17...Be6!! sacrificed the queen for a crushing queenside attack.', p: '1.Nf3 Nf6 2.c4 g6 3.Nc3 Bg7 4.d4 O-O 5.Bf4 d5 6.Qb3 dxc4 7.Qxc4 c6 8.e4 Nbd7 9.Rd1 Nb6 10.Qc5 Bg4 11.Bg5 Na4 12.Qa3 Nxc3 13.bxc3 Nxe4 14.Bxe7 Qb6 15.Bc4 Nxc3 16.Bc5 Rfe8+ 17.Kf1 Be6 18.Bxb6 Bxc4+ 19.Kg1 Ne2+ 20.Kf1 Nxd4+ 21.Kg1 Ne2+ 22.Kf1 Nc3+ 23.Kg1 axb6 24.Qb4 Ra4 25.Qxb6 Nxd1 26.h3 Rxa2 27.Kh2 Nxf2 28.Re1 Rxe1 29.Qd8+ Bf8 30.Nxe1 Bd5 31.Nf3 Ne4 32.Qb8 b5 33.h4 h5 34.Ne5 Kg7 35.Kg1 Bc5+ 36.Kf1 Ng3+ 37.Ke1 Bb4+ 38.Kd1 Bb3+ 39.Kc1 Ne2+ 40.Kb1 Nc3+ 41.Kc1 Rc2# 0-1' },
+    { k: /topalov|kasparov|تاپالوف|کاسپاروف/i, n: 'Kasparov vs Topalov, 1999', d: 'Kasparov – Topalov, Wijk aan Zee 1999 (1-0)', fa: 'فدای رخ ۲۴.Rxd4!! و شکار شاه در سراسر صفحه.', i: '24.Rxd4!! started a king hunt, often called one of the greatest attacking games.', p: '1.e4 d6 2.d4 Nf6 3.Nc3 g6 4.Be3 Bg7 5.Qd2 c6 6.f3 b5 7.Nge2 Nbd7 8.Bh6 Bxh6 9.Qxh6 Bb7 10.a3 e5 11.O-O-O Qe7 12.Kb1 a6 13.Nc1 O-O-O 14.Nb3 exd4 15.Rxd4 c5 16.Rd1 Nb6 17.g3 Kb8 18.Na5 Ba8 19.Bh3 d5 20.Qf4+ Ka7 21.Rhe1 d4 22.Nd5 Nbxd5 23.exd5 Qd6 24.Rxd4 cxd4 25.Re7+ Kb6 26.Qxd4+ Kxa5 27.b4+ Ka4 28.Qc3 Qxd5 29.Ra7 Bb7 30.Rxb7 Qc4 31.Qxf6 Kxa3 32.Qxa6+ Kxb4 33.c3+ Kxc3 34.Qa1+ Kd2 35.Qb2+ Kd1 36.Bf1 Rd2 37.Rd7 Rxd7 38.Bxc4 bxc4 39.Qxh8 Rd3 40.Qa8 c3 41.Qa4+ Ke1 42.f4 f5 43.Kc1 Rd2 44.Qa7 1-0' },
+    { k: /spassky|1972|اسپاسکی|fischer|فیشر/i, n: 'Fischer vs Spassky, 1972 (Game 6)', d: 'Fischer – Spassky, Reykjavik 1972, World Championship G6 (1-0)', fa: 'بازی ششم؛ گشایش وزیر و بازی موضعی کامل از فیشر.', i: 'A model Queen\'s Gambit: Fischer\'s central pawn break and kingside attack were so clean that Spassky applauded.', p: '1.c4 e6 2.Nf3 d5 3.d4 Nf6 4.Nc3 Be7 5.Bg5 O-O 6.e3 h6 7.Bh4 b6 8.cxd5 Nxd5 9.Bxe7 Qxe7 10.Nxd5 exd5 11.Rc1 Be6 12.Qa4 c5 13.Qa3 Rc8 14.Bb5 a6 15.dxc5 bxc5 16.O-O Ra7 17.Be2 Nd7 18.Nd4 Qf8 19.Nxe6 fxe6 20.e4 d4 21.f4 Qe7 22.e5 Rb8 23.Bc4 Kh8 24.Qh3 Nf8 25.b3 a5 26.f5 exf5 27.Rxf5 Nh7 28.Rcf1 Qd8 29.Qg3 Re7 30.h4 Rbb7 31.e6 Rbc7 32.Qe5 Qe8 33.a4 Qd8 34.R1f2 Qe8 35.R2f3 Qd8 36.Bd3 Qe8 37.Qe4 Nf6 38.Rxf6 gxf6 39.Rxf6 Kg8 40.Bc4 Kh8 41.Qf4 1-0' }
+  ];
+  const GATE = /\b(chess|openings?|gambit|checkmate|stalemate|endgames?|tactics?|forks?|skewer|pawns?|knights?|bishops?|rooks?|queens?|castl\w*|en passant|zugzwang|grandmasters?|fide|elo|puzzles?|bullet|blitz|stockfish|sicilian|najdorf|caro-kann|ruy lopez|pgn|fen|kasparov|fischer|carlsen|morphy|capablanca|karpov|anand|topalov|spassky|anderssen|nakamura|alekhine|botvinnik|steinitz|lasker|my (stats|progress|rating))\b|شطرنج|مهره|پیاده|رخ |وزیر|مات|گشایش|پازل|آنپاسان|کاسپاروف|فیشر|کارلسن|مورفی|کاپابلانکا|کارپوف|پیشرفت|ریتینگ|قلعه|بازی.{0,12}(اساتید|استاد|معروف)/i;
+  const chat = $('#chat');
+  const isFa = q => /[\u0600-\u06FF]/.test(q);
+  function say(t, u) { const p = document.createElement('p'); if (u) p.className = 'u'; p.textContent = t; chat.appendChild(p); chat.scrollTop = chat.scrollHeight; return p; }
+  async function remote(kind, q) { const u = window.VANTA_AI_ENDPOINT; if (!u) return null; try { const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, message: q }) }); const j = await r.json(); return j.reply || null; } catch (x) { return null; } }
+  function replay(pgn) {
+    if (live) return showToast('Finish or resign your game first');
+    setTab('ana'); reset(); flip = false; render();
+    let n = 0;
+    for (const t of pgn.replace(/\d+\.(\.\.)?/g, ' ').replace(/1-0|0-1|1\/2-1\/2/, '').trim().split(/\s+/)) {
+      const m = res.ms.find(x => san(cur, x, res.ms) === t.replace(/[+#]/g, '')); if (!m) break;
+      play(m); n++;
+    }
+    render(); scrollToBoard(); showToast('Loaded ' + n + ' moves. Use Undo to step back');
+  }
+  function chip(p, label, fn) { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = label; b.onclick = fn; p.appendChild(document.createElement('br')); p.appendChild(b); }
+  function showGame(g, fa) {
+    const p = say(g.n + ' - ' + g.d + '\n' + (fa ? g.fa + '\n' : '') + '\n' + g.p + '\n\nKey idea: ' + g.i);
+    chip(p, '▶ Replay on Analysis board', () => replay(g.p));
+  }
+  async function ask(q) {
+    if (live) return showToast('AI Coach is off during a live game');
+    q = q.trim(); if (!q) return; say(q, 1);
+    const fa = isFa(q), hits = GM.filter(g => g.k.test(q));
+    if (!GATE.test(q) && !hits.length) return say(fa ? 'من فقط به سوال‌های شطرنجی جواب می‌دم. درباره‌ی بازی‌های اساتید، گشایش‌ها، تاکتیک، آخربازی یا آمار خودت بپرس.' : 'I only answer chess questions. Ask me about master games, openings, tactics, endgames or your stats.');
+    const ex = hits.find(g => g.n.toLowerCase() === q.toLowerCase());
+    if (ex || hits.length === 1) return showGame(ex || hits[0], fa);
+    if (hits.length > 1) { const p = say(fa ? 'کدام بازی؟' : 'Which game?'); hits.forEach(g => chip(p, g.n, () => showGame(g, fa))); return; }
+    const r = await remote('coach', q); if (r) return say(r);
+    const hit = KB.find(k => k[0].test(q));
+    say(hit ? (hit[1] || 'Your last 7 days:\n' + statsText()) : (fa ? 'می‌تونم حرکات بازی‌های معروف (جاودان، همیشه‌سبز، اپرا، بازی قرن، کاسپاروف–تاپالوف، فیشر–اسپاسکی)، گشایش‌ها، تاکتیک و آخربازی رو توضیح بدم. مثلاً بنویس: «حرکات بازی جاودان».' : 'I can explain famous master games (Immortal, Evergreen, Opera, Game of the Century, Kasparov-Topalov, Fischer-Spassky), openings, tactics and endgames. Try: "moves of the Immortal Game".'));
+  }
+  $('#csend').onclick = () => { ask($('#cin').value); $('#cin').value = ''; };
+  $('#cin').addEventListener('keydown', e => { if (e.key === 'Enter') $('#csend').click(); });
+  $('#qk').innerHTML = ['The Immortal Game', 'The Game of the Century', 'Kasparov vs Topalov, 1999', 'Fischer vs Spassky, 1972 (Game 6)', 'My weekly rating progress'].map(q => '<button type="button" class="chip">' + q + '</button>').join('');
+  $('#qk').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) ask(b.textContent); });
+  say('Hi! I am the Vanta Coach. I give you the moves of master games (with replay), and explain openings, tactics and your stats. Chess only. (Unavailable while a game is live.)');
+
+  /* ---------- Tabs & controls ---------- */
+  function setTab(t) {
+    if (live && t !== 'play') return showToast('Finish or resign your game first (Coach/Analysis/Puzzles are locked)');
+    if (t !== 'play') { ended = false; setFocus(true); }
+    M = t === 'puzzle' ? 'puz' : t; edit = null; $('#pal').hidden = true;
+    $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    ['play', 'puzzle', 'ana', 'coach', 'stats'].forEach(k => { $('#p-' + k).hidden = k !== t; });
+    if (t === 'puzzle') loadPuz(pzId); else if (t === 'ana') { reset(); flip = false; render(); } else if (t === 'play' && !live && !ended) { reset(); flip = false; render(); } else render();
+    if (t === 'stats') renderStats();
+  }
+  $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) setTab(b.dataset.t); });
+  $('#tcs').innerHTML = TCS.map((t, i) => '<button type="button" class="chip' + (i === 5 ? ' on' : '') + '" data-i="' + i + '">' + tcl(t) + '</button>').join('');
+  $('#tcs').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b || live) return; tc = TCS[+b.dataset.i]; $$('#tcs .chip').forEach(c => c.classList.toggle('on', c === b)); });
+  $('#bots').innerHTML = BOTS.map((b, i) => '<button type="button" class="bc' + (i === 2 ? ' on' : '') + '" data-i="' + i + '"><b class="ini">' + b.f + '</b>' + b.n + '<span>' + b.r + '</span></button>').join('');
+  $('#bots').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b || live) return; botI = BOTS[+b.dataset.i]; $$('#bots .bc').forEach(c => c.classList.toggle('on', c === b)); render(); });
+  $('#themes').innerHTML = THEMES.map((t, i) => '<button type="button" class="chip' + (i ? '' : ' on') + '" data-th="' + t[0] + '">' + t[1] + '</button>').join('');
+  $('#themes').addEventListener('click', e => { const b = e.target.closest('[data-th]'); if (!b) return; boardEl.dataset.th = b.dataset.th; $$('#themes .chip').forEach(c => c.classList.toggle('on', c === b)); });
+  $('#newBtn').onclick = startGame;
+  $('#resBtn').onclick = () => { if (live) finish(opp(me), 'resignation'); };
+  $('#flipBtn').onclick = () => { flip = !flip; render(); };
+  $('#pzPrev').onclick = () => loadPuz(pzId - 1);
+  $('#pzNext').onclick = () => loadPuz(pzId + 1);
+  $('#pzRnd').onclick = () => loadPuz(1 + Math.floor(Math.random() * 11000));
+  $('#pzGo').onclick = () => loadPuz(+$('#pzNum').value || 1);
+  $('#pzHint').onclick = () => { if (puz && !endMsg) { const m = (puz.k === 1 || puz.stage === 1) ? mate1(cur)[0] : puz.sol[0]; if (m) { sel = m.f; render(); } } };
+  $$('a[href="#stats"]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setTab('stats'); scrollToBoard(); }));
+  $$('a[href="#puzzles"]').forEach(a => a.addEventListener('click', () => setTab('puzzle')));
+
+  boardEl.addEventListener('click', e => {
+    const b = e.target.closest('.sq');
+    if (!b) return;
+    const i = +b.dataset.i, p = cur.b[i];
+    if (edit !== null) { cur = Object.assign({}, cur, { b: cur.b.slice() }); cur.b[i] = edit === 'x' ? null : edit; render(); return; }
+    if (busy || res.over || pend || ended) return;
+    if (M === 'play' && (!live || cur.turn !== me)) { if (!live) showToast('Press Start Game first'); return; }
+    if (M === 'puz' && (cur.turn !== puz.me || puz.stage === 1 && false)) return;
+    const ms = sel !== null ? res.ms.filter(m => m.f === sel && m.t === i) : [];
+    if (ms.length > 1) {
+      pend = ms;
+      promoEl.innerHTML = ['q', 'r', 'b', 'n'].map(q => '<button type="button" class="pbtn ' + cur.turn + '" data-pm="' + q + '" aria-label="Promote to ' + q + '">' + sv(cur.turn + q) + '</button>').join('');
+      promoEl.hidden = false; const f = $('.pbtn', promoEl); if (f) f.focus();
+      return;
+    }
+    if (ms.length) { onMove(ms[0]); return; }
+    sel = (p && p[0] === cur.turn && i !== sel) ? i : null;
+    render();
+  });
+  promoEl.addEventListener('click', e => {
+    const pb = e.target.closest('.pbtn');
+    if (pb && pend) { const m = pend.find(x => x.pm === pb.dataset.pm); hidePromo(); if (m) onMove(m); }
+    else if (e.target === promoEl) hidePromo();
+  });
+  $('#startBtn').addEventListener('click', () => { setTab('play'); startGame(); scrollToBoard(); });
+  $('#demoBtn').addEventListener('click', () => openModal('demo'));
+  $('.panel').insertAdjacentHTML('afterbegin','<button type="button" class="btn btn-ghost btn-sm xbtn" id="exitFocus">✕ Exit full screen</button>');
+  $('#exitFocus').onclick = () => { if (live) { if (!confirm('Resign and leave?')) return; finish(opp(me), 'resignation'); } setFocus(false); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('gaming') && !live && overlay.classList.contains('open') === false && pg.hidden) setFocus(false); });
+  setTab('play');
+
+  /* ---------- Features ---------- */
+/* ---------- Features ---------- */
+  const ic = d => '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+  const feats = [
+    ['', 'AI Analysis', 'Every move graded by a deep engine, with clear explanations of what went wrong and what to play instead.', ic('<path d="M12 3a4 4 0 0 0-4 4v1H7a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1v1a4 4 0 0 0 8 0v-1h1a3 3 0 0 0 3-3v-2a3 3 0 0 0-3-3h-1V7a4 4 0 0 0-4-4z"/><path d="M9 12h6"/>')],
+    ['', 'Play vs Bots', 'Practice against bots ranked from beginner to master, each with its own playing style.', ic('<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9 16h6"/>')],
+    ['', 'Tournaments', 'Join live Arena and Swiss events every hour, with prizes and rating on the line.', ic('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/>')],
+    ['', 'Learn & Train', 'Interactive lessons that adapt to your rating and drill the openings you actually play.', ic('<path d="M2 8l10-5 10 5-10 5z"/><path d="M6 10.500V16c0 1.500 3 3 6 3s6-1.500 6-3v-5.500"/>')],
+    ['', 'Leaderboards', 'See where you stand against players worldwide, by rating, country, and friends.', ic('<path d="M6 20V10M12 20V4M18 20v-7"/>')],
+    ['puzzles', 'Puzzles', 'Thousands of tactical puzzles, with a daily challenge and a streak to protect.', ic('<path d="M10 4a2 2 0 1 1 4 0v2h4v4h-2a2 2 0 1 0 0 4h2v4h-4v-2a2 2 0 1 0-4 0v2H6v-4h2a2 2 0 1 0 0-4H6V6h4z"/>')]
+  ];
+  $('#featGrid').innerHTML = feats.map(f =>
+    '<article class="fcard reveal"' + (f[0] ? ' id="' + f[0] + '"' : '') + '><div class="ico">' + f[3] + '</div><h3>' + f[1] + '</h3><p>' + f[2] + '</p></article>').join('');
+
+  /* ---------- Trust marquee ---------- */
+  const star = ic('<path d="M12 2l3 7 7 .6-5.300 4.700L18.400 22 12 18l-6.400 4 1.700-7.700L2 9.600 9 9z"/>');
+  const row = ['Grandmaster Verified', 'FIDE-Rated Events', 'Official Club Partner', 'Elite Coach Network', 'Fair-Play Certified', 'Global Championship Host']
+    .map(t => '<li>' + star + t + '</li>').join('');
+  $('#track').innerHTML = row + row;
+
+
+  /* ---------- Pages: About / Contact / Help / Blog / Privacy / Terms ---------- */
+  const pg = $('#pg'), pgB = $('#pgBody');
+  const closePage = () => { pg.hidden = true; document.body.style.overflow = ''; };
+  function openPage(h) { pgB.innerHTML = h; pg.hidden = false; document.body.style.overflow = 'hidden'; pg.scrollTop = 0; setMenu(false); }
+  const SK = [
+    [/password|log ?in|sign ?(in|up)|account|ورود|رمز|حساب|ثبت.?نام/i, 'Accounts in this build are local-only: the login and sign-up forms are a preview and nothing is sent to a server, so there is no password to reset. Your ratings live in this browser.|حساب‌ها در این نسخه فقط محلی‌اند: فرم‌های ورود و ثبت‌نام نمایشی‌اند و چیزی به سرور نمی‌رود، پس رمزی برای بازیابی نیست. ریتینگ شما در همین مرورگر ذخیره می‌شود.'],
+    [/rating|elo|ریتینگ|امتیاز/i, 'Ratings start at 1000 in bullet, blitz and rapid and change with an Elo-style formula after every finished bot game. They are saved in this browser and are not FIDE ratings.|ریتینگ بولت، بلیتز و رپید از ۱۰۰۰ شروع می‌شود و بعد از هر بازی تمام‌شده با بات به روش ایلو تغییر می‌کند. در همین مرورگر ذخیره می‌شود و ریتینگ رسمی فیده نیست.'],
+    [/clock|time|bot|ساعت|زمان|بات|ربات/i, 'In timed games the clock starts after each side has moved once. Bots now think like people: longer in complex positions and longer time controls, faster in the opening and in bullet.|در بازی‌های ساعت‌دار، ساعت بعد از اولین حرکت هر طرف شروع می‌شود. بات‌ها مثل آدم فکر می‌کنند: در موقعیت‌های پیچیده و زمان‌های طولانی بیشتر، و در گشایش و بولت سریع‌تر.'],
+    [/puzzle|پازل|تمرین/i, 'Puzzles have categories (Mate in 1, Mate in 2, Back-rank, Sacrifice, Fork) and a rating. Your puzzle rating rises when you solve on the first try and drops after a miss.|پازل‌ها دسته‌بندی دارند (مات در ۱، مات در ۲، پشت‌ردیف، فداکاری، چنگال) و ریتینگ. ریتینگ پازل شما با حل در اولین تلاش بالا می‌رود و با اشتباه پایین می‌آید.'],
+    [/music|sound|song|موزیک|آهنگ|صدا/i, 'Tap the ♫ button (bottom-left) to play one of 80 instrumental tracks. Use Stop or set the volume to 0 to silence it. Music never starts by itself.|دکمه ♫ (پایین سمت چپ) را بزنید تا یکی از ۸۰ آهنگ بی‌کلام پخش شود. با Stop یا صدای صفر قطعش کنید. موزیک خودش شروع نمی‌شود.'],
+    [/bug|error|crash|broken|باگ|مشکل|خطا|کار نمی/i, 'Sorry about that. Refresh once; if it continues, message us on Telegram (t.me/VantaChess) with your browser and the steps you took.|ببخشید. یک بار صفحه را رفرش کنید؛ اگر ادامه داشت در تلگرام (t.me/VantaChess) مرورگر و مراحلی که رفتید را بفرستید.'],
+    [/privacy|data|delete|حریم|داده|حذف/i, 'Your data stays in your browser (see the Privacy page). Clear this site\'s data in your browser to erase it.|داده‌های شما در مرورگر خودتان می‌ماند (صفحه Privacy). با پاک‌کردن داده‌های سایت در مرورگر، همه حذف می‌شود.'],
+    [/tournament|leaderboard|تورنمنت|رده/i, 'Tournaments and leaderboards are planned and not live yet.|تورنمنت و جدول رده‌بندی برنامه‌ریزی شده‌اند و هنوز فعال نیستند.'],
+    [/coach|analysis|stockfish|تحلیل|مربی/i, 'AI Coach and Analysis are disabled during a live game for fair play. Analysis uses Stockfish when it can load, otherwise the built-in engine.|مربی و تحلیل برای رعایت انصاف در بازی زنده غیرفعال‌اند. تحلیل در صورت بارگذاری از استاک‌فیش استفاده می‌کند، وگرنه موتور داخلی.'],
+    [/price|free|premium|pay|رایگان|قیمت|پولی/i, 'Vanta Chess is free to play.|وانتا چس رایگان است.']
+  ];
+  const supLocal = q => { const h = SK.find(k => k[0].test(q)); return (h ? h[1] : 'I can help with accounts, ratings, bots and clocks, puzzles, music, privacy and bugs. For chess questions, open the AI Coach tab.|می‌تونم درباره حساب، ریتینگ، بات و ساعت، پازل، موزیک، حریم خصوصی و باگ‌ها کمک کنم. برای سوال‌های شطرنجی از تب AI Coach استفاده کنید.').split('|')[isFa(q) ? 1 : 0]; };
+  async function sup(q, inp) {
+    q = (q || '').trim(); if (!q) return; if (inp) inp.value = '';
+    const box = $('#sch'), add = (t, u) => { const p = document.createElement('p'); if (u) p.className = 'u'; p.textContent = t; box.appendChild(p); box.scrollTop = box.scrollHeight; };
+    add(q, 1); add(await remote('support', q) || supLocal(q));
+  }
+  const supBox = intro => '<div class="chat" id="sch"><p>' + intro + '</p></div><div class="chips">' + ['How do ratings work?', 'How do I stop the music?', 'Tell me about puzzles', 'Report a bug'].map(t => '<button type="button" class="chip" data-q="' + t + '">' + t + '</button>').join('') + '</div><div class="pbtns"><input id="sin" class="sel" placeholder="Ask Vanta Support (English / فارسی)"><button type="button" class="btn btn-primary btn-sm" id="ssend">Send</button></div>';
+  const POSTS = [
+    ['Oct 20, 2026', 'Bots that think like people', 'In timed games the bots now take real time to think: longer in complex positions and slower time controls, quicker in the opening and in bullet. Bot avatars are also more serious now.'],
+    ['Oct 12, 2026', 'Five habits that stop blunders', 'Before every move ask: what are the checks, captures and threats, for both sides? Then check what your move leaves undefended. Do this for a month and your rating will notice.'],
+    ['Sep 30, 2026', 'Puzzle categories explained', 'A fork attacks two pieces at once, a back-rank mate exploits a king trapped by its own pawns, and a sacrifice gives material to win something bigger. Train one category at a time.'],
+    ['Sep 18, 2026', 'How to study a master game', 'Ask the AI Coach for a classic like the Immortal Game, replay it on the Analysis board, and pause before each move to guess what the master played.']
+  ];
+  const PG = {
+    about: () => '<h3>About Vanta Chess</h3><p>♞ Vanta Chess was born from a simple belief: the chessboard is not just a grid of 64 squares. It\'s a universe of possibility. 🌌</p><p>We created Vanta Chess for players who refuse to settle for ordinary. For those who see every game as a battle of minds, every move as a statement, and every victory as something earned in the shadows before it\'s claimed in the light. 🖤</p><p>The name Vanta draws inspiration from Vantablack, the darkest material ever engineered by science, capable of absorbing nearly all visible light. To us, that darkness isn\'t emptiness. It\'s focus. It\'s silence before the storm. It\'s the state of mind of a player who sees everything on the board and gives nothing away. ♟️</p><h3>🎯 Our Mission</h3><p>To build the world\'s most refined chess platform, one that respects the intelligence of its players, celebrates the beauty of the game, and gives every player the tools to become a champion. 🏆</p><h3>🏛️ What We Stand For</h3><ul><li>🎯 <b>Precision</b>: Every feature is engineered with purpose. From real-time AI analysis to opponent scouting, nothing is wasted, nothing is decorative.</li><li>🌍 <b>Community</b>: Chess is at its best when it\'s shared. From casual players to world-class competitors, everyone has a seat at the Vanta board.</li><li>💎 <b>Craft</b>: A pixel-perfect, distraction-free interface designed to keep you in the zone, move after move, game after game.</li><li>🔒 <b>Integrity</b>: Fair play, honest competition, and respect for the game\'s timeless traditions.</li></ul><h3>🌑 Our Vision</h3><p>A world where every player, whether a curious beginner or a seasoned grandmaster, has access to the tools, the community, and the environment to reach their full potential. Vanta Chess isn\'t just a platform. It\'s a home for those who take the game seriously. ♟️</p><p>The board is set. The darkness awaits. Are you ready to rule it? 👑</p><p><b>Vanta Chess: Master the Dark. Rule the Board.</b></p>',
+    contact: () => '<h3>Contact</h3><p>Talk to Vanta Support AI, our support assistant. It answers right away, in English or فارسی. Prefer a person? Message us on <a href="https://t.me/VantaChess" target="_blank" rel="noopener noreferrer" style="color:var(--teal)">Telegram</a>.</p>' + supBox('Hi! I am Vanta Support. How can I help?'),
+    help: () => '<h3>Help Center</h3><p>Ask our support AI about accounts, ratings, bots and clocks, puzzles, music, privacy or bugs. For chess questions use the AI Coach tab on the board.</p>' + supBox('Hi! Ask me anything about using Vanta Chess. سوالتون رو فارسی هم می‌تونید بپرسید.'),
+    blog: () => '<h3>Blog</h3>' + POSTS.map(p => '<div class="post"><span class="d">' + p[0] + '</span><h3>' + p[1] + '</h3><p>' + p[2] + '</p></div>').join(''),
+    privacy: () => '<h3>Privacy Policy</h3><p class="d">Last updated: October 22, 2026</p><ul><li><b>What we store.</b> Your ratings, puzzle rating, lesson progress and game history are saved only in your own browser (local storage). We do not run a server that receives them.</li><li><b>Accounts.</b> The login and sign-up forms are a preview in this version; the details you type are not transmitted or stored.</li><li><b>Third parties.</b> The page loads fonts from Google Fonts and the Stockfish engine from cdnjs, so those providers can see your IP address under their own policies. We set no tracking or advertising cookies.</li><li><b>Chat assistants.</b> The Coach and Support assistants run in your browser. If the site operator connects an external AI service, your messages to the assistants are sent to it, and this policy will say so.</li><li><b>Your choices.</b> Clear this site\'s data in your browser at any time to delete everything stored.</li><li><b>Questions.</b> Reach us via the Contact page.</li></ul>',
+    terms: () => '<h3>Terms of Service</h3><p class="d">Last updated: October 22, 2026</p><ul><li><b>Use.</b> Vanta Chess is free to play for personal, non-commercial use. Do not attack, scrape or disrupt the service.</li><li><b>Fair play.</b> Do not use engines, other people or outside help during live games. The AI Coach and Analysis are locked in live games for this reason.</li><li><b>Ratings.</b> Ratings are for training only, are stored in your browser, and are not official FIDE or national ratings.</li><li><b>Content.</b> The Vanta Chess name, design and code belong to their owners. Master games and openings are part of chess history and free to study.</li><li><b>No warranty.</b> The service is provided as is, without guarantees of availability or accuracy. Engine evaluations and AI answers can be wrong.</li><li><b>Changes.</b> We may update these terms; continuing to use the site means you accept the new version.</li></ul>'
+  };
+  $$('[data-pg]').forEach(b => b.addEventListener('click', () => openPage(PG[b.dataset.pg]())));
+  $('#pgX').onclick = closePage;
+  pg.addEventListener('click', e => { if (e.target === pg) closePage(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePage(); });
+  pgB.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'sin') sup(e.target.value, e.target); });
+
+  /* ---------- Lessons: 20 topics x 50 levels = 1000 lessons, 3 languages ---------- */
+  const XT = {
+    en: {
+      nav: ['Home', 'Play', 'Learn', 'Puzzles', 'Leaderboard'], login: 'Login', signup: 'Sign Up Free',
+      h: 'Lessons', p: '1000 lessons in 20 topics. Every lesson has text and its own exercise.', done: 'lessons completed',
+      ls: 'Lesson', of: 'of', lvl: 'Level', lv: ['Beginner', 'Intermediate', 'Advanced'], show: 'Show on board', pz: 'Practice puzzles', mark: 'Mark as done',
+      ok: 'Correct! Lesson completed ✓', no: 'Not quite, try again.', ex: 'Exercise', dark: 'dark', light: 'light',
+      q: {
+        cnt: 'How many squares can the highlighted white piece move to? (captures count)',
+        att: 'Does the highlighted white piece attack the ✱ square?',
+        val: 'White material minus Black material? (P1 N3 B3 R5 Q9)',
+        color: 'Which square is {c}?',
+        nd: 'Fewest knight moves from the ♘ square to ✱?',
+        fork: 'Which square lets the white knight fork the black king and queen?',
+        race: 'White to move. Can the black king catch the pawn?',
+        kd: 'How many king moves separate the two kings?'
+      },
+      t: [
+        ['Board and colours', 'a1 is a dark square. Squares of one colour touch only at corners, so a bishop never changes colour.'],
+        ['The rook', 'Moves any distance along ranks and files. Count every square it can reach, captures included, but never beyond a blocker.'],
+        ['The bishop', 'Slides diagonally and stays on one colour forever. A piece in the way stops it; an enemy piece can be captured.'],
+        ['The queen', 'Rook plus bishop: the strongest piece. Count all eight directions up to the first blocker.'],
+        ['The knight', 'Jumps in an L-shape over anything. In the centre it reaches 8 squares, in a corner only 2.'],
+        ['The king', 'Steps one square in any direction. Keep it safe and count its squares carefully.'],
+        ['The pawn', 'Moves forward one (two from its start rank) and captures diagonally. A blocked pawn cannot advance.'],
+        ['Piece values', 'Pawn 1, knight 3, bishop 3, rook 5, queen 9. Count material before every trade.'],
+        ['Rook lines', 'A rook attacks along a line only until the first piece. Decide whether the target is really in reach.'],
+        ['Bishop diagonals', 'A bishop attacks along a diagonal only until the first piece. Trace the diagonal square by square.'],
+        ['Queen attacks', 'The queen attacks in 8 directions, each stopped by the first piece. Check every line.'],
+        ['Knight routes', 'Knights need several jumps to cross the board. Find the shortest route to the target square.'],
+        ['Knight forks', 'A knight that attacks king and queen at once wins material. Find the fork square.'],
+        ['Pawn races', 'Rule of the square: a king catches a passed pawn only if it reaches the queening square in time.'],
+        ['King distance', 'Kings move one square per turn, so distance is the larger of the file and rank difference. This is the basis of the opposition.'],
+        ['Counting material', 'Add up everything on both sides before judging who is better. Bigger positions need careful arithmetic.'],
+        ['Bishop mobility', 'Obstacles cut a bishop\'s diagonals. Count its true mobility in crowded positions.'],
+        ['Rook mobility', 'Pieces on files and ranks shorten a rook\'s range. Count carefully with many blockers.'],
+        ['Queen mobility', 'In a crowded position the queen\'s range depends on every blocker. Count all eight lines.'],
+        ['Mixed review', 'A mix of everything above: counting, attacks, forks, races and distances.']
+      ]
+    },
+    fa: {
+      nav: ['خانه', 'بازی', 'آموزش', 'معما', 'جدول برترین‌ها'], login: 'ورود', signup: 'ثبت‌نام رایگان',
+      h: 'درس‌ها', p: '۱۰۰۰ درس در ۲۰ موضوع. هر درس متن و تمرین مخصوص خودش را دارد.', done: 'درس تکمیل شد',
+      ls: 'درس', of: 'از', lvl: 'سطح', lv: ['مبتدی', 'متوسط', 'پیشرفته'], show: 'نمایش روی صفحه', pz: 'تمرین معما', mark: 'تمام شد',
+      ok: 'درست! درس تکمیل شد ✓', no: 'درست نبود، دوباره تلاش کن.', ex: 'تمرین', dark: 'تیره', light: 'روشن',
+      q: {
+        cnt: 'مهرهٔ سفید مشخص‌شده به چند خانه می‌تواند برود؟ (گرفتن هم حساب است)',
+        att: 'آیا مهرهٔ سفید مشخص‌شده به خانهٔ ✱ حمله می‌کند؟',
+        val: 'مواد سفید منهای مواد سیاه؟ (پیاده ۱، اسب ۳، فیل ۳، رخ ۵، وزیر ۹)',
+        color: 'کدام خانه {c} است؟',
+        nd: 'کمترین تعداد حرکت اسب از خانهٔ ♘ به ✱؟',
+        fork: 'کدام خانه به اسب سفید اجازه می‌دهد شاه و وزیر سیاه را هم‌زمان بزند؟',
+        race: 'نوبت سفید است. آیا شاه سیاه می‌تواند پیاده را بگیرد؟',
+        kd: 'چند حرکت شاه دو شاه را از هم جدا می‌کند؟'
+      },
+      t: [
+        ['صفحه و رنگ خانه‌ها', 'خانهٔ a1 تیره است. خانه‌های هم‌رنگ فقط در گوشه به هم می‌رسند، پس فیل هرگز رنگش را عوض نمی‌کند.'],
+        ['رخ', 'رخ در راستای ردیف‌ها و ستون‌ها هر تعداد خانه می‌رود. همهٔ خانه‌های قابل‌دسترس را با گرفتن مهره بشمارید، اما نه فراتر از مانع.'],
+        ['فیل', 'فیل قطری حرکت می‌کند و همیشه روی یک رنگ می‌ماند. مهرهٔ سر راه متوقفش می‌کند و مهرهٔ حریف قابل گرفتن است.'],
+        ['وزیر', 'وزیر ترکیب رخ و فیل و قوی‌ترین مهره است. هشت جهت را تا اولین مانع بشمارید.'],
+        ['اسب', 'اسب به شکل L و از روی همه‌چیز می‌پرد. در مرکز ۸ خانه و در گوشه فقط ۲ خانه دارد.'],
+        ['شاه', 'شاه یک خانه در هر جهت می‌رود. امنیتش را حفظ کنید و خانه‌هایش را دقیق بشمارید.'],
+        ['پیاده', 'پیاده یک خانه جلو می‌رود (از ردیف شروع دو خانه) و مورب می‌گیرد. پیادهٔ مسدود نمی‌تواند جلو برود.'],
+        ['ارزش مهره‌ها', 'پیاده ۱، اسب ۳، فیل ۳، رخ ۵، وزیر ۹. پیش از هر معامله مواد را بشمارید.'],
+        ['خطوط رخ', 'رخ فقط تا اولین مهره در یک خط حمله می‌کند. ببینید هدف واقعاً در دسترس است یا نه.'],
+        ['قطرهای فیل', 'فیل فقط تا اولین مهره در قطر حمله می‌کند. قطر را خانه به خانه دنبال کنید.'],
+        ['حملهٔ وزیر', 'وزیر در ۸ جهت حمله می‌کند و هر جهت با اولین مهره بسته می‌شود. همهٔ خطوط را بررسی کنید.'],
+        ['مسیر اسب', 'اسب برای عبور از صفحه چند پرش لازم دارد. کوتاه‌ترین مسیر تا خانهٔ هدف را پیدا کنید.'],
+        ['چنگال اسب', 'اسبی که هم‌زمان شاه و وزیر را بزند مهره می‌برد. خانهٔ چنگال را پیدا کنید.'],
+        ['مسابقهٔ پیاده', 'قانون مربع: شاه فقط اگر به‌موقع به خانهٔ ارتقا برسد پیادهٔ آزاد را می‌گیرد.'],
+        ['فاصلهٔ شاه‌ها', 'شاه‌ها هر نوبت یک خانه می‌روند، پس فاصله برابر بزرگ‌ترین اختلاف ستون و ردیف است؛ پایهٔ مخالفت.'],
+        ['شمارش مواد', 'پیش از قضاوت، مجموع مهره‌های دو طرف را حساب کنید. موقعیت‌های شلوغ‌تر دقت بیشتری می‌خواهند.'],
+        ['تحرک فیل', 'مانع‌ها قطرهای فیل را کوتاه می‌کنند. تحرک واقعی آن را در موقعیت شلوغ بشمارید.'],
+        ['تحرک رخ', 'مهره‌ها روی ستون و ردیف برد رخ را کم می‌کنند. با مانع‌های زیاد دقیق بشمارید.'],
+        ['تحرک وزیر', 'در موقعیت شلوغ برد وزیر به هر مانع بستگی دارد. هر هشت خط را بشمارید.'],
+        ['مرور ترکیبی', 'ترکیبی از همهٔ موارد: شمارش، حمله، چنگال، مسابقه و فاصله.']
+      ]
+    },
+    es: {
+      nav: ['Inicio', 'Jugar', 'Aprender', 'Problemas', 'Clasificación'], login: 'Entrar', signup: 'Regístrate gratis',
+      h: 'Lecciones', p: '1000 lecciones en 20 temas. Cada una tiene texto y su propio ejercicio.', done: 'lecciones completadas',
+      ls: 'Lección', of: 'de', lvl: 'Nivel', lv: ['Principiante', 'Intermedio', 'Avanzado'], show: 'Ver en el tablero', pz: 'Practicar problemas', mark: 'Marcar como hecha',
+      ok: '¡Correcto! Lección completada ✓', no: 'No exactamente, inténtalo de nuevo.', ex: 'Ejercicio', dark: 'oscura', light: 'clara',
+      q: {
+        cnt: '¿A cuántas casillas puede ir la pieza blanca resaltada? (las capturas cuentan)',
+        att: '¿Ataca la pieza blanca resaltada la casilla ✱?',
+        val: '¿Material blanco menos material negro? (P1 C3 A3 T5 D9)',
+        color: '¿Qué casilla es {c}?',
+        nd: '¿Mínimo de movimientos de caballo de la casilla ♘ a ✱?',
+        fork: '¿Qué casilla permite al caballo blanco hacer horquilla al rey y la dama negros?',
+        race: 'Mueven blancas. ¿Puede el rey negro alcanzar el peón?',
+        kd: '¿Cuántos movimientos de rey separan a los dos reyes?'
+      },
+      t: [
+        ['Tablero y colores', 'a1 es una casilla oscura. Las casillas del mismo color solo se tocan en las esquinas, así que el alfil nunca cambia de color.'],
+        ['La torre', 'Se mueve cualquier distancia por filas y columnas. Cuenta cada casilla alcanzable, con capturas, pero nunca más allá de un obstáculo.'],
+        ['El alfil', 'Se desliza en diagonal y siempre queda en un solo color. Una pieza en el camino lo detiene; la rival se puede capturar.'],
+        ['La dama', 'Torre más alfil: la pieza más fuerte. Cuenta las ocho direcciones hasta el primer obstáculo.'],
+        ['El caballo', 'Salta en L sobre cualquier cosa. En el centro llega a 8 casillas; en una esquina, solo a 2.'],
+        ['El rey', 'Avanza una casilla en cualquier dirección. Mantenlo seguro y cuenta bien sus casillas.'],
+        ['El peón', 'Avanza una casilla (dos desde su fila inicial) y captura en diagonal. Un peón bloqueado no avanza.'],
+        ['Valor de las piezas', 'Peón 1, caballo 3, alfil 3, torre 5, dama 9. Cuenta el material antes de cada cambio.'],
+        ['Líneas de torre', 'La torre ataca por una línea solo hasta la primera pieza. Decide si el objetivo está realmente a su alcance.'],
+        ['Diagonales del alfil', 'El alfil ataca por la diagonal solo hasta la primera pieza. Recorre la diagonal casilla a casilla.'],
+        ['Ataques de dama', 'La dama ataca en 8 direcciones y cada una se corta en la primera pieza. Revisa todas las líneas.'],
+        ['Rutas del caballo', 'El caballo necesita varios saltos para cruzar el tablero. Encuentra la ruta más corta a la casilla objetivo.'],
+        ['Horquillas de caballo', 'Un caballo que ataca rey y dama a la vez gana material. Encuentra la casilla de la horquilla.'],
+        ['Carreras de peones', 'Regla del cuadrado: el rey alcanza un peón pasado solo si llega a tiempo a la casilla de coronación.'],
+        ['Distancia entre reyes', 'Los reyes avanzan una casilla por turno: la distancia es la mayor diferencia entre columnas y filas. Base de la oposición.'],
+        ['Contar material', 'Suma todo en ambos bandos antes de juzgar quién está mejor. Las posiciones grandes piden cálculo cuidadoso.'],
+        ['Movilidad del alfil', 'Los obstáculos cortan las diagonales del alfil. Cuenta su movilidad real en posiciones llenas.'],
+        ['Movilidad de la torre', 'Las piezas en columnas y filas acortan el alcance de la torre. Cuenta con cuidado con muchos obstáculos.'],
+        ['Movilidad de la dama', 'En una posición llena el alcance de la dama depende de cada obstáculo. Cuenta las ocho líneas.'],
+        ['Repaso mixto', 'Mezcla de todo: conteo, ataques, horquillas, carreras y distancias.']
+      ]
+    }
+  };
+  const XTY = [['color'], ['cnt', 'R'], ['cnt', 'B'], ['cnt', 'Q'], ['cnt', 'N'], ['cnt', 'K'], ['cnt', 'P'], ['val'], ['att', 'R', 2], ['att', 'B', 2], ['att', 'Q', 2], ['nd'], ['fork'], ['race'], ['kd'], ['val', '', 2], ['cnt', 'B', 3], ['cnt', 'R', 3], ['cnt', 'Q', 3], ['mix']];
+  const XEND = '4k3/8/8/8/3%/8/8/4K3 w - - 0 1', XST = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const XF = [XST, XEND.replace('%', 'R'), XEND.replace('%', 'B'), XEND.replace('%', 'Q'), XEND.replace('%', 'N'), '7k/8/8/8/3K4/8/8/8 w - - 0 1', '4k3/8/8/8/8/8/3P4/4K3 w - - 0 1', XST, XEND.replace('%', 'R'), XEND.replace('%', 'B'), XEND.replace('%', 'Q'), XEND.replace('%', 'N'), '4k3/1q6/8/8/4N3/8/8/6K1 w - - 0 1', '8/8/8/8/8/k7/4P3/4K3 w - - 0 1', '8/8/4k3/8/4K3/4P3/8/8 w - - 0 1', XST, XEND.replace('%', 'B'), XEND.replace('%', 'R'), XEND.replace('%', 'Q'), XST];
+  const XZ = [];
+  XZ[12] = 'fork'; XZ[19] = 'm1';
+  const XPS = { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙', k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟', x: '✱' };
+  const XDR = { R: [[1, 0], [-1, 0], [0, 1], [0, -1]], B: [[1, 1], [1, -1], [-1, 1], [-1, -1]] };
+  XDR.Q = XDR.R.concat(XDR.B);
+  const XJP = { N: [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]], K: XDR.Q };
+  const XSQ = i => 'abcdefgh'[i % 8] + (1 + (i >> 3));
+  function xreach(p, s, bl) {
+    const f = s % 8, r = s >> 3, o = [];
+    if (XDR[p]) XDR[p].forEach(d => { let x = f + d[0], y = r + d[1]; while (x >= 0 && x < 8 && y >= 0 && y < 8) { const q = y * 8 + x; o.push(q); if (bl.includes(q)) break; x += d[0]; y += d[1]; } });
+    else XJP[p].forEach(d => { const x = f + d[0], y = r + d[1]; if (x >= 0 && x < 8 && y >= 0 && y < 8) o.push(y * 8 + x); });
+    return o;
+  }
+  function xmk(i) {
+    const t = (i / 50) | 0, n = i % 50, g = rng(i * 7919 + 17), ri = m => Math.floor(g() * m);
+    let ty = XTY[t], type = ty[0], pc = ty[1] || '', ex = ty[2] || 0;
+    if (type === 'mix') { const a = [['cnt', 'Q'], ['att', 'B'], ['nd'], ['fork'], ['race'], ['kd'], ['val'], ['color']][ri(8)]; type = a[0]; pc = a[1] || ''; ex = 2; }
+    const shuf = a => { for (let k = a.length - 1; k > 0; k--) { const j = ri(k + 1), z = a[k]; a[k] = a[j]; a[j] = z; } return a; };
+    const nums = (ans, neg) => { const a = [ans]; while (a.length < 4) { let x = ans + ri(7) - 3; if (!neg) x = Math.max(type === 'cnt' ? 0 : 1, x); if (!a.includes(x)) a.push(x); } shuf(a); return { o: a.map(v => neg && v > 0 ? '+' + v : '' + v), a: a.indexOf(ans) }; };
+    const pick = (cnt, no) => { const a = []; while (a.length < cnt) { const s = ri(64); if (!a.includes(s) && !no.includes(s)) a.push(s); } return a; };
+    const nb = Math.min(8, (n / 6 | 0) + ex), b = {};
+    let hl = -1, r;
+    if (type === 'cnt') {
+      const s = pc === 'P' ? 8 + ri(40) : ri(64), bl = (pc === 'N' || pc === 'K') ? [] : pick(nb, [s]);
+      b[s] = pc; hl = s; bl.forEach(q => b[q] = 'p');
+      let c;
+      if (pc === 'P') { c = 0; if (!b[s + 8] || b[s + 8] === 'x') { c++; if ((s >> 3) === 1 && !b[s + 16]) c++; } [-1, 1].forEach(d => { const f = s % 8 + d; if (f >= 0 && f < 8 && b[s + 8 + d]) c++; }); }
+      else c = xreach(pc, s, bl).length;
+      r = nums(c, false);
+    } else if (type === 'att') {
+      const s = ri(64), bl = pick(nb, [s]), R = xreach(pc, s, bl);
+      let tg; if (R.length && g() < .5) { do { tg = R[ri(R.length)]; } while (bl.includes(tg)); } else { do { tg = ri(64); } while (tg === s || bl.includes(tg) || R.includes(tg)); }
+      b[s] = pc; hl = s; bl.forEach(q => b[q] = 'p'); b[tg] = 'x';
+      r = { o: ['✓', '✗'], a: R.includes(tg) ? 0 : 1 };
+    } else if (type === 'val') {
+      const cn = Math.min(10, 2 + (n / 8 | 0) + ex), W = 'QRRBNNPPPP', Bk = 'qrrbnnpppp', V = { q: 9, r: 5, b: 3, n: 3, p: 1 };
+      const sq = pick(cn * 2, []); let d = 0;
+      for (let k = 0; k < cn; k++) { const w = W[ri(10)]; b[sq[k]] = w; d += V[w.toLowerCase()]; const x = Bk[ri(10)]; b[sq[cn + k]] = x; d -= V[x]; }
+      r = nums(d, true);
+    } else if (type === 'color') {
+      const want = n % 2 ? 1 : 0, key = want ? 'light' : 'dark', isL = s => ((s % 8) + (s >> 3)) % 2 === 1;
+      let w, o; do { w = ri(64); } while (isL(w) !== !!want);
+      o = [w]; while (o.length < 4) { const s = ri(64); if (!o.includes(s) && isL(s) !== !!want) o.push(s); }
+      shuf(o); return { b: b, h: -1, k: 'color', c: key, o: o.map(XSQ), a: o.indexOf(w) };
+    } else if (type === 'nd') {
+      const [a, z] = pick(2, []); const dist = new Array(64).fill(-1); dist[a] = 0; const qu = [a];
+      while (qu.length) { const u = qu.shift(); xreach('N', u, []).forEach(v => { if (dist[v] < 0) { dist[v] = dist[u] + 1; qu.push(v); } }); }
+      b[a] = 'N'; b[z] = 'x'; hl = a; r = nums(dist[z], false);
+    } else if (type === 'fork') {
+      let k, q, F;
+      do { [k, q] = pick(2, []); F = []; for (let s = 0; s < 64; s++) { const m = xreach('N', s, []); if (s !== k && s !== q && m.includes(k) && m.includes(q)) F.push(s); } } while (!F.length);
+      const w = F[ri(F.length)], o = [w]; while (o.length < 4) { const s = ri(64); if (!o.includes(s) && !F.includes(s) && s !== k && s !== q) o.push(s); }
+      shuf(o); b[k] = 'k'; b[q] = 'q';
+      return { b: b, h: -1, k: 'fork', o: o.map(XSQ), a: o.indexOf(w) };
+    } else if (type === 'race') {
+      let s, ks, f, pr, kf, kr;
+      do { pr = 1 + ri(6); f = ri(8); s = pr * 8 + f; ks = ri(64); kf = ks % 8; kr = ks >> 3; } while (ks === s || (kf === f && kr > pr));
+      const m = pr === 1 ? 5 : 7 - pr, dist = Math.max(Math.abs(kf - f), 7 - kr);
+      b[s] = 'P'; b[ks] = 'k'; hl = s; r = { o: ['✓', '✗'], a: dist <= m - 1 ? 0 : 1 };
+    } else {
+      const [a, z] = pick(2, []); b[a] = 'K'; b[z] = 'k'; hl = a;
+      r = nums(Math.max(Math.abs(a % 8 - z % 8), Math.abs((a >> 3) - (z >> 3))), false);
+    }
+    return { b: b, h: hl, k: type, o: r.o, a: r.a };
+  }
+  function xdiag(b, hl) {
+    let h = '<div class="dg">';
+    for (let r = 7; r >= 0; r--) { h += '<span class="dl">' + (r + 1) + '</span>'; for (let f = 0; f < 8; f++) { const i = r * 8 + f; h += '<b class="' + ((f + r) % 2 ? 'l' : 'd') + (i === hl ? ' h' : '') + '">' + (b[i] ? XPS[b[i]] : '') + '</b>'; } }
+    return h + '<span></span>' + 'abcdefgh'.split('').map(c => '<span class="dl">' + c + '</span>').join('') + '</div>';
+  }
+  let xl = 'en', xt = 0, xcur = null;
+  try { const s = localStorage.getItem('vc_lang'); xl = XT[s] ? s : (/^fa/i.test(navigator.language) ? 'fa' : /^es/i.test(navigator.language) ? 'es' : 'en'); } catch (x) { }
+  function xles(i) {
+    const L = XT[xl], t = (i / 50) | 0, n = i % 50, e = xmk(i), lv = n < 17 ? 0 : n < 34 ? 1 : 2;
+    xcur = { i: i, e: e };
+    return '<p class="d">' + L.lv[lv] + ' · ' + L.ls + ' ' + (i + 1) + ' ' + L.of + ' 1000</p><h3>' + L.t[t][0] + ' · ' + L.lvl + ' ' + (n + 1) + '</h3><p>' + L.t[t][1] + '</p>' + xdiag(e.b, e.h) +
+      '<p><b>' + L.ex + ':</b> ' + L.q[e.k].replace('{c}', L[e.c] || '') + '</p><div class="xo">' + e.o.map((o, k) => '<button type="button" class="btn btn-ghost btn-sm" data-ans="' + k + '">' + o + '</button>').join('') + '</div><p id="xfb" class="note" aria-live="polite"></p>' +
+      '<div class="pbtns">' + (XF[t] ? '<button type="button" class="btn btn-primary btn-sm" data-fen="' + i + '">' + L.show + '</button>' : '') + (XZ[t] ? '<button type="button" class="btn btn-ghost btn-sm" data-pz="' + XZ[t] + '">' + L.pz + '</button>' : '') + '<button type="button" class="btn btn-ghost btn-sm" data-done="' + i + '">' + L.mark + '</button></div>';
+  }
+  let LD = []; try { LD = JSON.parse(localStorage.getItem('vc_les2') || '[]'); } catch (x) { }
+  function drawLes() {
+    const L = XT[xl];
+    $('#lessonGrid').innerHTML = Array.from({ length: 50 }, (_, n) => { const i = xt * 50 + n, lv = n < 17 ? 0 : n < 34 ? 1 : 2; return '<button type="button" class="lc' + (LD.includes(i) ? ' ok' : '') + '" data-les="' + i + '"><small>' + L.lv[lv] + '</small><h3>' + L.t[xt][0] + ' · ' + L.lvl + ' ' + (n + 1) + '</h3><span class="note">' + L.t[xt][1].slice(0, 60) + '…</span></button>'; }).join('');
+    $('#lessonProg').textContent = LD.length + ' / 1000 ' + L.done;
+  }
+
+  /* ---------- Openings (lessons + analysis detector) & full-page i18n ---------- */
+  const OPN = "Italian Game|e4 e5 Nf3 Nc6 Bc4|0\nGiuoco Piano|e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d3|0\nTwo Knights Defence|e4 e5 Nf3 Nc6 Bc4 Nf6|0\nFried Liver Attack|e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5 d5 exd5 Nxd5 Nxf7|5\nEvans Gambit|e4 e5 Nf3 Nc6 Bc4 Bc5 b4|5\nRuy Lopez|e4 e5 Nf3 Nc6 Bb5|0\nRuy Lopez, Morphy Defence|e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7|0\nMarshall Attack|e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 O-O c3 d5|5\nBerlin Defence|e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Nxe4|0\nScotch Game|e4 e5 Nf3 Nc6 d4 exd4 Nxd4|0\nPetrov Defence|e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4|0\nPhilidor Defence|e4 e5 Nf3 d6 d4 Nf6|0\nFour Knights Game|e4 e5 Nf3 Nc6 Nc3 Nf6|0\nVienna Game|e4 e5 Nc3 Nf6|0\nBishop's Opening|e4 e5 Bc4 Nf6|0\nKing's Gambit|e4 e5 f4 exf4 Nf3|5\nDanish Gambit|e4 e5 d4 exd4 c3 dxc3 Bc4 cxb2 Bxb2|5\nLatvian Gambit|e4 e5 Nf3 f5|5\nElephant Gambit|e4 e5 Nf3 d5|5\nHalloween Gambit|e4 e5 Nf3 Nc6 Nc3 Nf6 Nxe5 Nxe5 d4|5\nSicilian Defence|e4 c5|1\nOpen Sicilian|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3|1\nSicilian Najdorf|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6|1\nSicilian Dragon|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6|1\nSicilian Scheveningen|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6|1\nSicilian Sveshnikov|e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 e5|1\nSicilian Taimanov|e4 c5 Nf3 e6 d4 cxd4 Nxd4 Nc6|1\nSicilian Alapin|e4 c5 c3|1\nClosed Sicilian|e4 c5 Nc3 Nc6 g3|1\nSmith-Morra Gambit|e4 c5 d4 cxd4 c3 dxc3 Nxc3|5\nFrench Defence|e4 e6 d4 d5|1\nFrench Winawer|e4 e6 d4 d5 Nc3 Bb4|1\nFrench Tarrasch|e4 e6 d4 d5 Nd2|1\nFrench Advance|e4 e6 d4 d5 e5|1\nCaro-Kann Defence|e4 c6 d4 d5|1\nCaro-Kann Advance|e4 c6 d4 d5 e5 Bf5|1\nCaro-Kann Classical|e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5|1\nScandinavian Defence|e4 d5 exd5 Qxd5 Nc3 Qa5|1\nPirc Defence|e4 d6 d4 Nf6 Nc3 g6|1\nModern Defence|e4 g6 d4 Bg7|1\nAlekhine's Defence|e4 Nf6 e5 Nd5 d4 d6|1\nQueen's Gambit|d4 d5 c4|2\nQueen's Gambit Accepted|d4 d5 c4 dxc4|2\nQueen's Gambit Declined|d4 d5 c4 e6 Nc3 Nf6|2\nSlav Defence|d4 d5 c4 c6 Nf3 Nf6|2\nSemi-Slav Defence|d4 d5 c4 c6 Nf3 Nf6 Nc3 e6|2\nLondon System|d4 d5 Nf3 Nf6 Bf4|2\nColle System|d4 d5 Nf3 Nf6 e3|2\nTorre Attack|d4 Nf6 Nf3 e6 Bg5|2\nTrompowsky Attack|d4 Nf6 Bg5|2\nDutch Defence|d4 f5|2\nAlbin Counter-Gambit|d4 d5 c4 e5 dxe5 d4|5\nEnglund Gambit|d4 e5 dxe5 Nc6|5\nKing's Indian Defence|d4 Nf6 c4 g6 Nc3 Bg7 e4 d6|3\nGrünfeld Defence|d4 Nf6 c4 g6 Nc3 d5|3\nNimzo-Indian Defence|d4 Nf6 c4 e6 Nc3 Bb4|3\nQueen's Indian Defence|d4 Nf6 c4 e6 Nf3 b6|3\nBogo-Indian Defence|d4 Nf6 c4 e6 Nf3 Bb4|3\nCatalan Opening|d4 Nf6 c4 e6 g3 d5 Bg2|3\nBenoni Defence|d4 Nf6 c4 c5 d5 e6|3\nBenko Gambit|d4 Nf6 c4 c5 d5 b5|5\nBudapest Gambit|d4 Nf6 c4 e5 dxe5 Ng4|5\nOld Indian Defence|d4 Nf6 c4 d6|3\nEnglish Opening|c4|4\nEnglish, Symmetrical|c4 c5|4\nEnglish, Reversed Sicilian|c4 e5|4\nRéti Opening|Nf3 d5 c4|4\nKing's Indian Attack|Nf3 d5 g3|4\nBird's Opening|f4|4\nLarsen's Opening|b3|4\nPolish Opening|b4|4\nGrob's Attack|g4|4\nRuy Lopez, Closed|e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6 c3 O-O|0\nRuy Lopez, Exchange|e4 e5 Nf3 Nc6 Bb5 a6 Bxc6 dxc6|0\nRuy Lopez, Schliemann|e4 e5 Nf3 Nc6 Bb5 f5|5\nRuy Lopez, Steinitz Defence|e4 e5 Nf3 Nc6 Bb5 d6|0\nRuy Lopez, Cozio Defence|e4 e5 Nf3 Nc6 Bb5 Nge7|0\nRuy Lopez, Open|e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Nxe4|0\nHungarian Defence|e4 e5 Nf3 Nc6 Bc4 Be7|0\nEvans Gambit Accepted|e4 e5 Nf3 Nc6 Bc4 Bc5 b4 Bxb4 c3 Ba5 d4|5\nGiuoco Pianissimo|e4 e5 Nf3 Nc6 Bc4 Bc5 d3 Nf6 c3|0\nMax Lange Attack|e4 e5 Nf3 Nc6 Bc4 Nf6 d4 exd4 O-O Bc5 e5 d5|5\nTraxler Counterattack|e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5 Bc5|5\nScotch Gambit|e4 e5 Nf3 Nc6 d4 exd4 Bc4|5\nScotch Four Knights|e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6 Nc3 Bb4|0\nScotch, Mieses Variation|e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6 Nxc6 bxc6 e5|0\nPonziani Opening|e4 e5 Nf3 Nc6 c3|0\nCenter Game|e4 e5 d4 exd4 Qxd4 Nc6 Qe3|0\nVienna Gambit|e4 e5 Nc3 Nf6 f4|5\nFrankenstein-Dracula Variation|e4 e5 Nc3 Nf6 Bc4 Nxe4 Qh5 Nd6 Bb3 Nc6 Nb5 g6 Qf3 f5 Qd5 Qe7 Nxc7 Kd8 Nxa8 b6|5\nKing's Gambit Accepted|e4 e5 f4 exf4|5\nKing's Gambit Declined|e4 e5 f4 Bc5|5\nFalkbeer Counter-Gambit|e4 e5 f4 d5|5\nKing's Knight's Gambit|e4 e5 f4 exf4 Nf3 g5|5\nPetrov, Classical Attack|e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4 d4 d5 Bd3|0\nPetrov, Three Knights|e4 e5 Nf3 Nf6 Nc3|0\nPhilidor, Hanham Variation|e4 e5 Nf3 d6 d4 Nd7|0\nPhilidor, Exchange|e4 e5 Nf3 d6 d4 exd4 Nxd4|0\nSicilian Accelerated Dragon|e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6|1\nSicilian Kan|e4 c5 Nf3 e6 d4 cxd4 Nxd4 a6|1\nSicilian Classical|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6|1\nSicilian Richter-Rauzer|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6 Bg5|1\nSicilian Sozin Attack|e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 d6 Bc4|1\nNajdorf, English Attack|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Be3 e5|1\nNajdorf, Bg5|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Bg5|1\nNajdorf, Poisoned Pawn|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Bg5 e6 f4 Qb6|1\nDragon, Yugoslav Attack|e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6 Be3 Bg7 f3 O-O Qd2 Nc6|1\nSicilian Grand Prix Attack|e4 c5 Nc3 Nc6 f4|1\nSicilian Wing Gambit|e4 c5 b4|5\nSicilian Moscow Variation|e4 c5 Nf3 d6 Bb5|1\nSicilian Rossolimo|e4 c5 Nf3 Nc6 Bb5|1\nSicilian Kalashnikov|e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 e5|1\nSicilian Four Knights|e4 c5 Nf3 e6 d4 cxd4 Nxd4 Nf6 Nc3 Nc6|1\nFrench, Classical|e4 e6 d4 d5 Nc3 Nf6 Bg5|1\nFrench Rubinstein|e4 e6 d4 d5 Nc3 dxe4 Nxe4|1\nFrench Exchange|e4 e6 d4 d5 exd5 exd5|1\nFrench, Burn Variation|e4 e6 d4 d5 Nc3 Nf6 Bg5 dxe4|1\nFrench Winawer, Advance|e4 e6 d4 d5 Nc3 Bb4 e5 c5 a3 Bxc3 bxc3|1\nFrench, King's Indian Attack|e4 e6 d3 d5 Nd2|1\nCaro-Kann Exchange|e4 c6 d4 d5 exd5 cxd5|1\nCaro-Kann Panov Attack|e4 c6 d4 d5 exd5 cxd5 c4 Nf6 Nc3|1\nCaro-Kann Two Knights|e4 c6 Nc3 d5 Nf3|1\nCaro-Kann Fantasy|e4 c6 d4 d5 f3|1\nCaro-Kann Bronstein-Larsen|e4 c6 d4 d5 Nc3 dxe4 Nxe4 Nf6 Nxf6 gxf6|1\nScandinavian Modern|e4 d5 exd5 Nf6 d4 Nxd5|1\nScandinavian Portuguese Gambit|e4 d5 exd5 Nf6 d4 Bg4|5\nPirc Austrian Attack|e4 d6 d4 Nf6 Nc3 g6 f4 Bg7 Nf3|1\nPirc Classical|e4 d6 d4 Nf6 Nc3 g6 Nf3 Bg7 Be2|1\nAlekhine Four Pawns Attack|e4 Nf6 e5 Nd5 d4 d6 c4 Nb6 f4|1\nAlekhine Modern Variation|e4 Nf6 e5 Nd5 d4 d6 Nf3|1\nOwen's Defence|e4 b6|1\nNimzowitsch Defence|e4 Nc6|1\nSt. George Defence|e4 a6|1\nQGD Orthodox|d4 d5 c4 e6 Nc3 Nf6 Bg5 Be7 e3 O-O Nf3|2\nQGD Exchange|d4 d5 c4 e6 Nc3 Nf6 cxd5 exd5|2\nQGD Tarrasch|d4 d5 c4 e6 Nc3 c5|2\nQGD Cambridge Springs|d4 d5 c4 e6 Nc3 Nf6 Bg5 Nbd7 e3 c6 Nf3 Qa5|2\nQGD Lasker Defence|d4 d5 c4 e6 Nc3 Nf6 Bg5 Be7 e3 O-O Nf3 h6 Bh4 Ne4|2\nSlav, Czech Variation|d4 d5 c4 c6 Nf3 Nf6 Nc3 dxc4 a4 Bf5|2\nSlav Exchange|d4 d5 c4 c6 cxd5 cxd5|2\nSemi-Slav, Meran|d4 d5 c4 c6 Nf3 Nf6 Nc3 e6 e3 Nbd7 Bd3 dxc4 Bxc4 b5|2\nSemi-Slav, Botvinnik|d4 d5 c4 c6 Nf3 Nf6 Nc3 e6 Bg5 dxc4 e4 b5|2\nJobava London|d4 d5 Nc3 Nf6 Bf4|2\nVeresov Attack|d4 d5 Nc3 Nf6 Bg5|2\nBlackmar-Diemer Gambit|d4 d5 e4 dxe4 Nc3 Nf6 f3|5\nChigorin Defence|d4 d5 c4 Nc6|2\nDutch Leningrad|d4 f5 g3 Nf6 Bg2 g6|2\nDutch Stonewall|d4 f5 g3 Nf6 Bg2 e6 Nf3 d5|2\nDutch Classical|d4 f5 c4 Nf6 g3 e6 Bg2 Be7|2\nKing's Indian, Classical|d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 Nf3 O-O Be2 e5|3\nKing's Indian, Sämisch|d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 f3|3\nKing's Indian, Four Pawns|d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 f4|3\nKing's Indian, Fianchetto|d4 Nf6 c4 g6 g3 Bg7 Bg2 O-O Nc3|3\nGrünfeld, Exchange|d4 Nf6 c4 g6 Nc3 d5 cxd5 Nxd5 e4 Nxc3 bxc3|3\nGrünfeld, Russian System|d4 Nf6 c4 g6 Nc3 d5 Nf3 Bg7 Qb3|3\nNimzo-Indian, Rubinstein|d4 Nf6 c4 e6 Nc3 Bb4 e3|3\nNimzo-Indian, Classical|d4 Nf6 c4 e6 Nc3 Bb4 Qc2|3\nNimzo-Indian, Sämisch|d4 Nf6 c4 e6 Nc3 Bb4 a3 Bxc3 bxc3|3\nOpen Catalan|d4 Nf6 c4 e6 g3 d5 Bg2 dxc4|3\nClosed Catalan|d4 Nf6 c4 e6 g3 d5 Bg2 Be7 Nf3 O-O|3\nQueen's Indian, Petrosian|d4 Nf6 c4 e6 Nf3 b6 a3|3\nModern Benoni|d4 Nf6 c4 c5 d5 e6 Nc3 exd5 cxd5 d6|3\nCzech Benoni|d4 Nf6 c4 c5 d5 e5|3\nBenko Gambit Accepted|d4 Nf6 c4 c5 d5 b5 cxb5 a6|5\nBudapest, Fajarowicz|d4 Nf6 c4 e5 dxe5 Ne4|5\nTrompowsky, Edge-Martin|d4 Nf6 Bg5 Ne4 Bf4 c5 f3 Qa5 c3 Nf6 d5 Qb6 Qc1|2\nColle-Zukertort|d4 d5 Nf3 Nf6 e3 e6 Bd3 c5 b3|2\nEnglish Four Knights|c4 e5 Nc3 Nf6 Nf3 Nc6|4\nEnglish, Botvinnik System|c4 e5 Nc3 Nc6 g3 g6 Bg2 Bg7 e4|4\nAnglo-Indian Defence|c4 Nf6|4\nEnglish Hedgehog|c4 c5 Nf3 Nf6 Nc3 e6 g3 b6 Bg2 Bb7 O-O Be7|4\nRéti Accepted|Nf3 d5 c4 dxc4|4\nRéti, King's Indian Setup|Nf3 Nf6 g3 g6 Bg2 Bg7|4\nBird, Dutch Variation|f4 d5 Nf3 Nf6 e3|4\nFrom's Gambit|f4 e5 fxe5 d6|5\nHungarian Opening|g3|4\nDunst Opening|Nc3|4\nMieses Opening|d3|4\nAnderssen's Opening|a3|4\nVan't Kruijs Opening|e3|4\nSaragossa Opening|c3|4\nClemenz Opening|h3|4\nAmar Opening|Nh3|4\nWare Opening|a4|4\nSodium Attack|Na3|4".split('\n').map(l => { const p = l.split('|'); return { n: p[0], m: p[1], c: +p[2] }; });
+  const OIDEA = {"en": ["Open game: fight for the centre with 1.e4 e5, develop knights and bishops quickly, castle early and look for tactics on f7/f2 and the e-file.", "Semi-open game: Black answers 1.e4 without ...e5 and fights for the centre indirectly. Expect unbalanced pawn structures and counterplay on the wings.", "Queen-pawn game (1.d4): slower manoeuvring, pawn-structure play and pressure on the c- and d-files. Plan your pawn breaks before attacking.", "Indian defences: Black lets White build a big centre, then attacks it with pieces (fianchettoed bishop) and pawn breaks like ...c5, ...e5 or ...d5.", "Flank opening: White delays the central pawn push and controls the centre from the side, keeping flexible transposition options.", "Gambit: a pawn is offered for fast development and initiative. Know the follow-up attack; as the defender, return the pawn at the right moment."], "fa": ["بازی باز: با ۱.e4 e5 برای مرکز بجنگ، اسب‌ها و فیل‌ها را سریع رشد بده، زود قلعه برو و دنبال تاکتیک روی f7/f2 و ستون e باش.", "بازی نیمه‌باز: سیاه به ۱.e4 بدون ...e5 جواب می‌دهد و غیرمستقیم برای مرکز می‌جنگد. ساختار پیاده نامتقارن و ضدحمله روی جناح‌ها در انتظار توست.", "بازی پیاده وزیر (۱.d4): مانور آهسته‌تر، بازی ساختار پیاده و فشار روی ستون‌های c و d. پیش از حمله، شکست پیاده‌ات را برنامه‌ریزی کن.", "دفاع‌های هندی: سیاه اجازه می‌دهد سفید مرکز بزرگی بسازد، سپس با مهره‌ها (فیل فیانکتو) و شکست پیاده مثل ...c5، ...e5 یا ...d5 به آن حمله می‌کند.", "گشایش جناحی: سفید حرکت پیاده‌های مرکزی را عقب می‌اندازد و مرکز را از کناره کنترل می‌کند و گزینه‌های انتقال انعطاف‌پذیر دارد.", "گامبیت: یک پیاده برای رشد سریع و ابتکار عمل فدا می‌شود. ادامهٔ حمله را بشناس؛ در دفاع، پیاده را در لحظهٔ درست پس بده."], "es": ["Juego abierto: lucha por el centro con 1.e4 e5, desarrolla rápido caballos y alfiles, enroca pronto y busca tácticas en f7/f2 y la columna e.", "Juego semiabierto: las negras responden a 1.e4 sin ...e5 y luchan por el centro de forma indirecta. Esperan estructuras asimétricas y contrajuego en las alas.", "Juego de peón de dama (1.d4): maniobras más lentas, estructura de peones y presión en las columnas c y d. Planifica tus rupturas antes de atacar.", "Defensas indias: las negras dejan que las blancas construyan un gran centro y lo atacan con piezas (alfil fianchetto) y rupturas como ...c5, ...e5 o ...d5.", "Apertura de flanco: las blancas retrasan los peones centrales y controlan el centro desde el lado, con transposiciones flexibles.", "Gambito: se ofrece un peón por desarrollo e iniciativa. Conoce el ataque posterior; si defiendes, devuelve el peón en el momento justo."]}, OL = {"en": {"h": "Openings", "p": "lessons", "show": "Show on board", "q": "Which move does the book play here?", "main": "Main line", "idea": "Key ideas", "op": "Opening", "oob": "Opening: out of book"}, "fa": {"h": "گشایش‌ها", "p": "درس", "show": "نمایش روی صفحه", "q": "کتاب گشایش در این موقعیت کدام حرکت را بازی می‌کند؟", "main": "خط اصلی", "idea": "ایده‌های کلیدی", "op": "گشایش", "oob": "گشایش: خارج از کتاب"}, "es": {"h": "Aperturas", "p": "lecciones", "show": "Ver en el tablero", "q": "¿Qué jugada hace el libro aquí?", "main": "Línea principal", "idea": "Ideas clave", "op": "Apertura", "oob": "Apertura: fuera de libro"}}, D = {"fa": {"★ The #1 Chess Platform for Pros": "★ پلتفرم شماره ۱ شطرنج برای حرفه‌ای‌ها", "Master the Dark.": "تاریکی را مهار کن.", "Rule the Board.": "بر صفحه حکومت کن.", "Vanta Chess is where champions train. Play, learn, and dominate — with cutting-edge AI analysis.": "وانتا چس جایی است که قهرمانان تمرین می‌کنند. بازی کن، یاد بگیر و با تحلیل هوش مصنوعی پیشرفته پیروز شو.", "Start Playing Free": "شروع بازی رایگان", "Watch Demo": "تماشای دمو", "players": "بازیکن", "games": "بازی", "Trusted by grandmasters worldwide": "مورد اعتماد استادبزرگ‌ها در سراسر جهان", "Grandmaster Verified": "تأییدشده توسط استادبزرگ", "FIDE-Rated Events": "رویدادهای رسمی فیده", "Official Club Partner": "شریک رسمی باشگاه", "Elite Coach Network": "شبکه مربیان نخبه", "Fair-Play Certified": "گواهی بازی جوانمردانه", "Global Championship Host": "میزبان مسابقات جهانی", "Why Vanta Chess?": "چرا وانتا چس؟", "Everything a serious player needs, in one dark, distraction-free place.": "هر چیزی که یک بازیکن جدی نیاز دارد، در یک محیط تاریک و بدون حواس‌پرتی.", "AI Analysis": "تحلیل هوش مصنوعی", "Play vs Bots": "بازی با بات", "Tournaments": "تورنمنت‌ها", "Learn & Train": "یادگیری و تمرین", "Leaderboards": "جدول رده‌بندی", "Every move graded by a deep engine, with clear explanations of what went wrong and what to play instead.": "هر حرکت توسط یک موتور قدرتمند ارزیابی می‌شود، با توضیح روشن اینکه چه اشتباهی شد و چه باید بازی کرد.", "Practice against bots ranked from beginner to master, each with its own playing style.": "با بات‌هایی از مبتدی تا استاد تمرین کن؛ هرکدام سبک بازی خودش را دارد.", "Join live Arena and Swiss events every hour, with prizes and rating on the line.": "هر ساعت در رویدادهای زنده آرنا و سوئیسی شرکت کن، با جایزه و ریتینگ.", "Interactive lessons that adapt to your rating and drill the openings you actually play.": "درس‌های تعاملی متناسب با ریتینگ تو که گشایش‌هایی را که واقعاً بازی می‌کنی تمرین می‌دهد.", "See where you stand against players worldwide, by rating, country, and friends.": "ببین در برابر بازیکنان جهان کجا هستی، بر اساس ریتینگ، کشور و دوستان.", "Thousands of tactical puzzles, with a daily challenge and a streak to protect.": "هزاران معمای تاکتیکی، با چالش روزانه و رکوردی که باید حفظش کنی.", "Try the Vanta Board": "صفحه وانتا را امتحان کن", "Full chess rules: castling, en passant, promotion, check and checkmate. Click a piece to see its legal moves.": "قوانین کامل شطرنج: قلعه، آنپاسان، ارتقا، کیش و مات. روی یک مهره بزن تا حرکت‌های مجازش را ببینی.", "Game status": "وضعیت بازی", "Play": "بازی", "Puzzles": "معماها", "Analysis": "تحلیل", "AI Coach": "مربی هوشمند", "Stats": "آمار", "Play White": "بازی با سفید", "Play Black": "بازی با سیاه", "Random": "تصادفی", "Start Game": "شروع بازی", "Resign": "تسلیم", "Flip Board": "چرخش صفحه", "Prev": "قبلی", "Next": "بعدی", "Hint": "راهنمایی", "Go": "برو", "New Analysis": "تحلیل جدید", "Set up position": "چیدن موقعیت", "Analyze": "تحلیل کن", "Clear All": "پاک‌کردن همه", "Undo": "برگشت", "Copy FEN": "کپی FEN", "Load FEN": "بارگذاری FEN", "Send": "ارسال", "Side: White": "نوبت: سفید", "Side: Black": "نوبت: سیاه", "Engine idle. Make moves freely for both sides, then press Analyze.": "موتور آماده است. آزادانه برای هر دو طرف حرکت کن، سپس «تحلیل کن» را بزن.", "✕ Exit full screen": "✕ خروج از تمام‌صفحه", "You": "تو", "White": "سفید", "Black": "سیاه", "No moves yet.": "هنوز حرکتی نیست.", "Active Players": "بازیکن فعال", "Games Played": "بازی انجام‌شده", "Puzzles Solved Daily": "معمای حل‌شده در روز", "Uptime": "آپ‌تایم", "Ready to Enter the Darkness?": "آماده‌ای وارد تاریکی شوی؟", "Create your free account in seconds and play your first game today.": "در چند ثانیه حساب رایگانت را بساز و امروز اولین بازی‌ات را انجام بده.", "Join Vanta Chess Free": "عضویت رایگان در وانتا چس", "Master the Dark. Rule the Board. The chess platform built for players who want to win.": "تاریکی را مهار کن. بر صفحه حکومت کن. پلتفرمی برای بازیکنانی که می‌خواهند ببرند.", "Product": "محصول", "Company": "شرکت", "Resources": "منابع", "About": "درباره ما", "Contact": "تماس", "Help Center": "مرکز راهنما", "Blog": "وبلاگ", "Privacy": "حریم خصوصی", "Terms": "شرایط", "Telegram": "تلگرام", "Skip to content": "رفتن به محتوا", "© 2025 Vanta Chess. All rights reserved.": "© ۲۰۲۵ وانتا چس. همهٔ حقوق محفوظ است.", "Paste FEN": "FEN را بچسبان", "Ask about chess…": "درباره شطرنج بپرس…", "Go to # (1–11000)": "برو به # (۱–۱۱۰۰۰)"}, "es": {"★ The #1 Chess Platform for Pros": "★ La plataforma de ajedrez n.º 1 para profesionales", "Master the Dark.": "Domina la oscuridad.", "Rule the Board.": "Gobierna el tablero.", "Vanta Chess is where champions train. Play, learn, and dominate — with cutting-edge AI analysis.": "Vanta Chess es donde entrenan los campeones. Juega, aprende y domina, con análisis de IA de vanguardia.", "Start Playing Free": "Juega gratis", "Watch Demo": "Ver demo", "players": "jugadores", "games": "partidas", "Trusted by grandmasters worldwide": "La confianza de grandes maestros de todo el mundo", "Grandmaster Verified": "Verificado por grandes maestros", "FIDE-Rated Events": "Eventos con rating FIDE", "Official Club Partner": "Socio oficial de clubes", "Elite Coach Network": "Red de entrenadores de élite", "Fair-Play Certified": "Certificado de juego limpio", "Global Championship Host": "Sede de campeonatos mundiales", "Why Vanta Chess?": "¿Por qué Vanta Chess?", "Everything a serious player needs, in one dark, distraction-free place.": "Todo lo que necesita un jugador serio, en un lugar oscuro y sin distracciones.", "AI Analysis": "Análisis con IA", "Play vs Bots": "Juega contra bots", "Tournaments": "Torneos", "Learn & Train": "Aprende y entrena", "Leaderboards": "Clasificaciones", "Every move graded by a deep engine, with clear explanations of what went wrong and what to play instead.": "Cada jugada evaluada por un motor potente, con explicaciones claras de qué falló y qué jugar.", "Practice against bots ranked from beginner to master, each with its own playing style.": "Practica contra bots de principiante a maestro, cada uno con su estilo.", "Join live Arena and Swiss events every hour, with prizes and rating on the line.": "Únete cada hora a eventos Arena y suizos, con premios y rating en juego.", "Interactive lessons that adapt to your rating and drill the openings you actually play.": "Lecciones interactivas que se adaptan a tu rating y entrenan las aperturas que juegas.", "See where you stand against players worldwide, by rating, country, and friends.": "Mira tu posición frente a jugadores de todo el mundo, por rating, país y amigos.", "Thousands of tactical puzzles, with a daily challenge and a streak to protect.": "Miles de problemas tácticos, con reto diario y una racha que proteger.", "Try the Vanta Board": "Prueba el tablero Vanta", "Full chess rules: castling, en passant, promotion, check and checkmate. Click a piece to see its legal moves.": "Reglas completas: enroque, al paso, coronación, jaque y mate. Pulsa una pieza para ver sus jugadas legales.", "Game status": "Estado de la partida", "Play": "Jugar", "Puzzles": "Problemas", "Analysis": "Análisis", "AI Coach": "Entrenador IA", "Stats": "Estadísticas", "Play White": "Jugar con blancas", "Play Black": "Jugar con negras", "Random": "Aleatorio", "Start Game": "Empezar", "Resign": "Rendirse", "Flip Board": "Girar tablero", "Prev": "Anterior", "Next": "Siguiente", "Hint": "Pista", "Go": "Ir", "New Analysis": "Nuevo análisis", "Set up position": "Colocar posición", "Analyze": "Analizar", "Clear All": "Borrar todo", "Undo": "Deshacer", "Copy FEN": "Copiar FEN", "Load FEN": "Cargar FEN", "Send": "Enviar", "Side: White": "Turno: blancas", "Side: Black": "Turno: negras", "Engine idle. Make moves freely for both sides, then press Analyze.": "Motor en reposo. Mueve libremente ambos bandos y pulsa Analizar.", "✕ Exit full screen": "✕ Salir de pantalla completa", "You": "Tú", "White": "Blancas", "Black": "Negras", "No moves yet.": "Aún no hay jugadas.", "Active Players": "Jugadores activos", "Games Played": "Partidas jugadas", "Puzzles Solved Daily": "Problemas resueltos al día", "Uptime": "Disponibilidad", "Ready to Enter the Darkness?": "¿Listo para entrar en la oscuridad?", "Create your free account in seconds and play your first game today.": "Crea tu cuenta gratis en segundos y juega hoy tu primera partida.", "Join Vanta Chess Free": "Únete gratis a Vanta Chess", "Master the Dark. Rule the Board. The chess platform built for players who want to win.": "Domina la oscuridad. Gobierna el tablero. La plataforma para quienes quieren ganar.", "Product": "Producto", "Company": "Empresa", "Resources": "Recursos", "About": "Acerca de", "Contact": "Contacto", "Help Center": "Centro de ayuda", "Blog": "Blog", "Privacy": "Privacidad", "Terms": "Términos", "Telegram": "Telegram", "Skip to content": "Saltar al contenido", "© 2025 Vanta Chess. All rights reserved.": "© 2025 Vanta Chess. Todos los derechos reservados.", "Paste FEN": "Pega el FEN", "Ask about chess…": "Pregunta sobre ajedrez…", "Go to # (1–11000)": "Ir a # (1–11000)"}}, PH = {"fa": [["White to move", "نوبت سفید"], ["Black to move", "نوبت سیاه"], [" — check!", " — کیش!"], ["White wins by checkmate", "سفید با مات برنده شد"], ["Black wins by checkmate", "سیاه با مات برنده شد"], ["Draw by stalemate", "مساوی با پات"], ["Pick a bot and time control, then Start Game", "یک بات و زمان انتخاب کن، سپس شروع بازی را بزن"], ["is thinking…", "در حال فکر کردن…"], ["You win", "تو بردی"], ["wins", "برنده شد"], ["Draw", "مساوی"], ["checkmate", "مات"], ["resignation", "تسلیم"], ["time out", "اتمام زمان"], ["Solved!", "حل شد!"], ["Not that one, try again", "این نبود، دوباره تلاش کن"], ["Press Start Game first", "اول «شروع بازی» را بزن"], ["Position set", "موقعیت تنظیم شد"], ["Invalid FEN", "FEN نامعتبر"], ["FEN copied", "FEN کپی شد"], ["Lesson completed ✓", "درس تکمیل شد ✓"]], "es": [["White to move", "Mueven blancas"], ["Black to move", "Mueven negras"], [" — check!", " — ¡jaque!"], ["White wins by checkmate", "Ganan blancas por mate"], ["Black wins by checkmate", "Ganan negras por mate"], ["Draw by stalemate", "Tablas por ahogado"], ["Pick a bot and time control, then Start Game", "Elige un bot y un ritmo, luego pulsa Empezar"], ["is thinking…", "está pensando…"], ["You win", "Ganas"], ["wins", "gana"], ["Draw", "Tablas"], ["checkmate", "mate"], ["resignation", "rendición"], ["time out", "tiempo agotado"], ["Solved!", "¡Resuelto!"], ["Not that one, try again", "Esa no, inténtalo de nuevo"], ["Press Start Game first", "Pulsa Empezar primero"], ["Position set", "Posición lista"], ["Invalid FEN", "FEN no válido"], ["FEN copied", "FEN copiado"], ["Lesson completed ✓", "Lección completada ✓"]]};
+  function OLT(k) { return (OL[xl] || OL.en)[k]; }
+  function XS(s) { s = String(s); try { for (const [a, b] of (PH[xl] || [])) s = s.split(a).join(b); } catch (x) { } return s; }
+  function openingOf() {
+    const h = hist.map(e => e.san.replace(/[+#]/g, '')); let b = null;
+    for (const o of OPN) { const w = o.m.split(' '); if (w.length <= h.length && w.every((t, i) => t === h[i]) && (!b || w.length > b.m.split(' ').length)) b = o; }
+    return b;
+  }
+  let opnQ = '';
+  let OD = []; try { OD = JSON.parse(localStorage.getItem('vc_opn') || '[]'); } catch (x) { }
+  function drawOpn() {
+    $('#opnH').textContent = OLT('h') + ' · ' + OPN.length;
+    $('#opnProg').textContent = OD.length + ' / ' + OPN.length;
+    $('#opnSearch').placeholder = ({ en: 'Search openings…', fa: 'جستجوی گشایش…', es: 'Buscar aperturas…' })[xl];
+    $('#opnGrid').innerHTML = OPN.map((o, i) => ({ o, i })).filter(x => !opnQ || x.o.n.toLowerCase().includes(opnQ)).map(({ o, i }) => '<button type="button" class="lc' + (OD.includes(i) ? ' ok' : '') + '" data-opn="' + i + '"><small>' + OLT('op') + ' ' + (i + 1) + '</small><h3>' + o.n + '</h3><span class="note">' + o.m.split(' ').slice(0, 6).join(' ') + '…</span></button>').join('');
+  }
+  $('#opnSearch').oninput = e => { opnQ = e.target.value.trim().toLowerCase(); drawOpn(); };
+  let oq = null;
+  function opnPage(i) {
+    const o = OPN[i], w = o.m.split(' '); let st = initState();
+    for (const t of w.slice(0, -1)) { const ms = legal(st); st = apply(st, ms.find(x => san(st, x, ms) === t)); }
+    const ms = legal(st), ans = san(st, ms.find(x => san(st, x, ms) === w[w.length - 1]), ms), g = rng(i * 131 + 7), opts = [ans];
+    const pool = ms.map(x => san(st, x, ms)).filter(x => x !== ans);
+    while (opts.length < 4 && pool.length) opts.push(pool.splice(Math.floor(g() * pool.length), 1)[0]);
+    for (let k = opts.length - 1; k > 0; k--) { const j = Math.floor(g() * (k + 1)); [opts[k], opts[j]] = [opts[j], opts[k]]; }
+    oq = { i, a: opts.indexOf(ans) };
+    const mv = w.map((t, k) => (k % 2 ? '' : (k / 2 + 1) + '.') + t).join(' ');
+    return '<p class="d">' + OLT('op') + ' ' + (i + 1) + ' / ' + OPN.length + '</p><h3>' + o.n + '</h3><p><b>' + OLT('main') + ':</b> ' + mv + '</p><p><b>' + OLT('idea') + ':</b> ' + OIDEA[xl][o.c] + '</p>' +
+      '<p><b>' + (xl === 'fa' ? 'تمرین' : xl === 'es' ? 'Ejercicio' : 'Exercise') + ':</b> ' + OLT('q') + ' <i>(' + (w.length > 1 ? w.slice(0, -1).join(' ') : '—') + ')</i></p><div class="xo">' +
+      opts.map((t, k) => '<button type="button" class="btn btn-ghost btn-sm" data-oa="' + k + '">' + t + '</button>').join('') + '</div><p id="xfb" class="note" aria-live="polite"></p>' +
+      '<div class="pbtns"><button type="button" class="btn btn-primary btn-sm" data-oshow="' + i + '">' + OLT('show') + '</button></div>';
+  }
+  $('#opnGrid').addEventListener('click', e => { const b = e.target.closest('[data-opn]'); if (b) openPage(opnPage(+b.dataset.opn)); });
+  pgB.addEventListener('click', e => {
+    const a = e.target.closest('[data-oa]'), sh = e.target.closest('[data-oshow]');
+    if (a && oq) {
+      const ok = +a.dataset.oa === oq.a, fb = $('#xfb'), L = XT[xl];
+      fb.textContent = ok ? L.ok : L.no; fb.style.color = ok ? 'var(--green)' : 'var(--warn)';
+      if (ok) { if (!OD.includes(oq.i)) { OD.push(oq.i); try { localStorage.setItem('vc_opn', JSON.stringify(OD)); } catch (x) { } drawOpn(); } $$('[data-oa]', pgB).forEach(x => x.disabled = true); }
+    } else if (sh) { closePage(); replay(OPN[+sh.dataset.oshow].m); }
+  });
+  function tx(n, d) {
+    if (n._t !== undefined && n.nodeValue !== n._t) n._o = n.nodeValue; else if (n._o === undefined) n._o = n.nodeValue;
+    const k = n._o.trim(), v = d[k]; n._t = v ? n._o.replace(k, v) : n._o; n.nodeValue = n._t;
+  }
+  const skipN = n => n.parentElement && n.parentElement.closest('script,style,#chat,#sch');
+  function walk(root, d) { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) if (!skipN(n)) tx(n, d); }
+  function applyI18n() {
+    const d = D[xl] || {}; walk(document.body, d);
+    $$('[placeholder]:not(#opnSearch)').forEach(e => { if (e._p === undefined) e._p = e.placeholder; e.placeholder = d[e._p] || e._p; });
+    document.documentElement.lang = xl;
+  }
+  new MutationObserver(ms => { const d = D[xl] || {}; ms.forEach(m => m.addedNodes.forEach(a => { if (a.nodeType === 3) { if (!skipN(a)) tx(a, d); } else if (a.nodeType === 1) walk(a, d); })); }).observe(document.body, { childList: true, subtree: true });
+
+
+  /* ---------- Extras: PGN copy, move sounds, keyboard flip ---------- */
+  Object.assign(D.fa, { 'Copy PGN': 'کپی PGN', '🔊 Sound: On': '🔊 صدا: روشن', '🔇 Sound: Off': '🔇 صدا: خاموش' });
+  Object.assign(D.es, { 'Copy PGN': 'Copiar PGN', '🔊 Sound: On': '🔊 Sonido: sí', '🔇 Sound: Off': '🔇 Sonido: no' });
+  PH.fa.push(['PGN copied', 'PGN کپی شد'], ['No moves yet', 'هنوز حرکتی نیست']); PH.es.push(['PGN copied', 'PGN copiado'], ['No moves yet', 'Aún no hay jugadas']);
+  let snd = true; try { snd = localStorage.getItem('vc_snd') !== '0'; } catch (x) { }
+  const sndLbl = () => { $('#sndBtn').textContent = snd ? '🔊 Sound: On' : '🔇 Sound: Off'; };
+  sndLbl();
+  $('#sndBtn').onclick = () => { snd = !snd; try { localStorage.setItem('vc_snd', snd ? '1' : '0'); } catch (x) { } sndLbl(); };
+  $('#pgnBtn').onclick = () => {
+    if (!hist.length) return showToast('No moves yet');
+    const p = hist.map((e, i) => (i % 2 ? '' : (i / 2 + 1) + '. ') + e.san).join(' ');
+    try { navigator.clipboard.writeText(p); } catch (x) { } showToast('PGN copied');
+  };
+  let sx = null;
+  function moveSound(m) {
+    if (!snd) return;
+    try {
+      const A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+      sx = sx || new A(); if (sx.state === 'suspended') sx.resume();
+      const o = sx.createOscillator(), g = sx.createGain(), t = sx.currentTime;
+      o.type = 'triangle'; o.frequency.setValueAtTime(m.cap ? 140 : 210, t); o.frequency.exponentialRampToValueAtTime(70, t + .07);
+      g.gain.setValueAtTime(.18, t); g.gain.exponentialRampToValueAtTime(.001, t + .09);
+      o.connect(g); g.connect(sx.destination); o.start(t); o.stop(t + .1);
+    } catch (x) { }
+  }
+  document.addEventListener('keydown', e => {
+    if ((e.key === 'f' || e.key === 'F') && document.body.classList.contains('gaming') && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) && !e.ctrlKey && !e.metaKey) { flip = !flip; render(); }
+  });
+
+
+  /* ---------- App themes (settings) ---------- */
+  const APPT = [['dark', 'Dark', 'تیره', 'Oscuro', '#81b64c,#0a0a0b'], ['midnight', 'Midnight', 'نیمه‌شب', 'Medianoche', '#5b8def,#070b16'], ['forest', 'Forest', 'جنگل', 'Bosque', '#6fcf6f,#08100b'], ['sunset', 'Sunset', 'غروب', 'Atardecer', '#f59e42,#140b08'], ['rose', 'Rose', 'گل‌سرخ', 'Rosa', '#e879b9,#120a10'], ['light', 'Light', 'روشن', 'Claro', '#4f8a1f,#f4f5f2']];
+  let appT = 'dark'; try { appT = localStorage.getItem('vc_app') || 'dark'; } catch (x) { }
+  if (!APPT.some(t => t[0] === appT)) appT = 'dark';
+  const setAppT = t => { appT = t; if (t === 'dark') document.documentElement.removeAttribute('data-app'); else document.documentElement.dataset.app = t; try { localStorage.setItem('vc_app', t); } catch (x) { } };
+  setAppT(appT);
+  document.body.insertAdjacentHTML('beforeend', '<div class="st"><button type="button" class="mub" id="stBtn" aria-label="Settings">⚙</button><div class="stp" id="stPan" hidden></div></div>');
+  function drawTheme() {
+    const k = { en: 1, fa: 2, es: 3 }[xl] || 1, ttl = { en: 'Theme', fa: 'تم برنامه', es: 'Tema' }[xl] || 'Theme';
+    $('#stPan').innerHTML = '<b>' + ttl + '</b>' + APPT.map(t => '<button type="button" class="tmb' + (t[0] === appT ? ' on' : '') + '" data-tm="' + t[0] + '"><i style="background:linear-gradient(135deg,' + t[4].split(',')[0] + ' 50%,' + t[4].split(',')[1] + ' 50%)"></i>' + t[k] + '</button>').join('');
+  }
+  $('#stBtn').onclick = () => { $('#stPan').hidden = !$('#stPan').hidden; };
+  $('#stPan').addEventListener('click', e => { const b = e.target.closest('[data-tm]'); if (b) { setAppT(b.dataset.tm); drawTheme(); } });
+  document.addEventListener('click', e => { if (!e.target.closest('.st')) $('#stPan').hidden = true; });
+
+  function setLang(l) {
+    xl = l; const L = XT[l]; try { localStorage.setItem('vc_lang', l); } catch (x) { }
+    $$('.langSel').forEach(s => s.value = l);
+    ['lessons', 'pg'].forEach(id => { const el = document.getElementById(id); if (el) { el.dir = l === 'fa' ? 'rtl' : 'ltr'; el.lang = l; } });
+    const hr = ['#home', '#play', '#lessons', '#puzzles', '#stats'];
+    $$('a.link').forEach(a => { const k = hr.indexOf(a.getAttribute('href')); if (k >= 0) a.textContent = L.nav[k]; });
+    $$('header [data-open="login"], .drawer [data-open="login"]').forEach(b => b.textContent = L.login);
+    $$('header [data-open="signup"], .drawer [data-open="signup"]').forEach(b => b.textContent = L.signup);
+    $('#les-title').textContent = L.h; $('#lessons .head p').textContent = L.p;
+    $('#topicSel').innerHTML = L.t.map((x, k) => '<option value="' + k + '">' + (k + 1) + '. ' + x[0] + '</option>').join(''); $('#topicSel').value = xt;
+    drawLes(); drawOpn(); drawTheme(); render(); applyI18n();
+  }
+  $('#topicSel').onchange = e => { xt = +e.target.value; drawLes(); };
+  $$('.langSel').forEach(s => s.onchange = e => setLang(e.target.value));
+  setLang(xl);
+  function goPuz(c) { if (live) return showToast('Finish or resign your game first'); pzCat = c; $$('#pzCats .chip').forEach(x => x.classList.toggle('on', x.dataset.c === c)); pzId = 1; setTab('puzzle'); scrollToBoard(); }
+  function loadFen(i) { const f = fromFEN(XF[(i / 50) | 0]); if (live) return showToast('Finish or resign your game first'); setTab('ana'); reset(f); flip = false; render(); scrollToBoard(); }
+  $('#lessonGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-les]'); if (!b) return;
+    openPage(xles(+b.dataset.les));
+  });
+  pgB.addEventListener('click', e => {
+    const t = e.target.closest('[data-ans]'); if (!t || !xcur) return;
+    const ok = +t.dataset.ans === xcur.e.a, fb = $('#xfb'), L = XT[xl];
+    fb.textContent = ok ? L.ok : L.no; fb.style.color = ok ? 'var(--green)' : 'var(--warn)';
+    if (ok) { const i = xcur.i; if (!LD.includes(i)) { LD.push(i); try { localStorage.setItem('vc_les2', JSON.stringify(LD)); } catch (x) { } drawLes(); } $$('[data-ans]', pgB).forEach(x => x.disabled = true); }
+  });
+
+  pgB.addEventListener('click', e => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.id === 'ssend') sup($('#sin').value, $('#sin'));
+    else if (t.dataset.q) sup(t.dataset.q);
+    else if (t.dataset.fen) { closePage(); loadFen(+t.dataset.fen); }
+    else if (t.dataset.pz) { closePage(); goPuz(t.dataset.pz); }
+    else if (t.dataset.done) { const i = +t.dataset.done; if (!LD.includes(i)) LD.push(i); try { localStorage.setItem('vc_les2', JSON.stringify(LD)); } catch (x) { } drawLes(); closePage(); showToast('Lesson completed ✓'); }
+  });
+
+  /* ---------- Music: 80 generative instrumental tracks (WebAudio, no files) ---------- */
+  const MA = ['Midnight', 'Silent', 'Obsidian', 'Velvet', 'Iron', 'Frozen', 'Crimson', 'Ashen', 'Lunar', 'Hollow'], MB = ['Gambit', 'Endgame', 'Opening', 'Castle', 'Knight', 'Zugzwang', 'Fianchetto', 'Sacrifice'];
+  const MT = Array.from({ length: 80 }, (_, i) => MA[i % 10] + ' ' + MB[Math.floor(i / 10)]);
+  const SC = [[0,2,3,5,7,8,10],[0,2,3,5,7,9,10],[0,1,3,5,7,8,10],[0,2,3,5,7,8,11],[0,3,5,7,10],[0,2,4,7,9],[0,2,4,6,7,9,11],[0,2,3,7,8]];
+  const AC = window.AudioContext || window.webkitAudioContext;
+  let mx = null, mo, md, mg, mi = 0, mOn = false, mTm = 0, mNt = 0, mSt = 0, mBar = 0, mP = null, mVol = .5;
+  function mInit() {
+    mx = new AC(); mo = mx.createGain(); mo.gain.value = mVol;
+    const d = mx.createDelay(1), fb = mx.createGain(), lp = mx.createBiquadFilter(); d.delayTime.value = .42; fb.gain.value = .4; lp.frequency.value = 1800;
+    md = mx.createGain(); md.gain.value = .45; md.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(mo); mo.connect(mx.destination);
+  }
+  function mTrack(i) {
+    mi = (i + 80) % 80; const r = rng(mi * 977 + 5);
+    mP = { sc: SC[mi % 8], root: 43 + Math.floor(r() * 12), step: 60 / (46 + Math.floor(r() * 40)) / 2, prog: [0, [2, 3, 4][Math.floor(r() * 3)], [3, 5][Math.floor(r() * 2)], [4, 6, 1][Math.floor(r() * 3)]], pat: Array.from({ length: 8 }, () => r() < .35 ? -1 : Math.floor(r() * 6)), lead: ['sine', 'triangle', 'square'][Math.floor(r() * 3)] };
+    if (mg) mg.gain.setTargetAtTime(0, mx.currentTime, .15);
+    mg = mx.createGain(); mg.connect(mo); mg.connect(md); mBar = 0; mSt = 0; mNt = mx.currentTime + .1;
+    $('#muT').textContent = (mi + 1) + '/80 · ' + MT[mi]; $('#muSel').value = mi;
+  }
+  const mDeg = (sc, n) => 12 * Math.floor(n / sc.length) + sc[((n % sc.length) + sc.length) % sc.length];
+  function mNote(m, t, d, ty, g) { const o = mx.createOscillator(), e = mx.createGain(); o.type = ty; o.frequency.value = 440 * Math.pow(2, (m - 69) / 12); e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(g, t + Math.min(.08, d / 3)); e.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(e); e.connect(mg); o.start(t); o.stop(t + d + .05); }
+  function mTick() {
+    const P = mP;
+    while (mNt < mx.currentTime + .4) {
+      const s = mSt % 8, d = P.prog[mBar % 4];
+      if (s === 0) [0, 2, 4].forEach(k => mNote(P.root + 12 + mDeg(P.sc, d + k), mNt, P.step * 8, 'triangle', .035));
+      if (s === 0 || s === 4) mNote(P.root - 12 + mDeg(P.sc, d), mNt, P.step * 3.5, 'sine', .16);
+      if (P.pat[s] >= 0) mNote(P.root + 24 + mDeg(P.sc, d + P.pat[s]), mNt, P.step * 2.2, P.lead, .05 + Math.random() * .02);
+      mNt += P.step; mSt++;
+      if (mSt % 8 === 0 && ++mBar >= 40) { mTrack(mi + 1); return; }
+    }
+  }
+  function mPlay(on) {
+    if (!AC) return showToast('Audio is not supported in this browser');
+    if (!mx) { mInit(); mTrack(mi); }
+    mOn = on; clearInterval(mTm);
+    if (on) { mx.resume(); mNt = Math.max(mNt, mx.currentTime + .05); mTm = setInterval(mTick, 60); } else mx.suspend();
+    $('#muPlay').textContent = on ? '■ Stop' : '▶ Play'; $('#muBtn').classList.toggle('on', on);
+  }
+  const mGo = i => { mi = (i + 80) % 80; if (mx) mTrack(mi); else { $('#muSel').value = mi; $('#muT').textContent = (mi + 1) + '/80 · ' + MT[mi]; } };
+  document.body.insertAdjacentHTML('beforeend', '<div class="mu"><button type="button" class="mub" id="muBtn" aria-label="Music player">♫</button><div class="mup" id="muPan" hidden><b id="muT">1/80 · ' + MT[0] + '</b><div class="pbtns" style="grid-template-columns:repeat(3,1fr)"><button type="button" class="btn btn-ghost btn-sm" id="muPrev" aria-label="Previous track">⏮</button><button type="button" class="btn btn-primary btn-sm" id="muPlay">▶ Play</button><button type="button" class="btn btn-ghost btn-sm" id="muNext" aria-label="Next track">⏭</button></div><label class="note">Volume (0 = mute) <input type="range" id="muVol" min="0" max="100" value="50"></label><select id="muSel" class="sel" aria-label="Choose track">' + MT.map((t, i) => '<option value="' + i + '">' + (i + 1) + '. ' + t + '</option>').join('') + '</select><p class="note">80 instrumental tracks, generated live in your browser.</p></div></div>');
+  $('#muBtn').onclick = () => { $('#muPan').hidden = !$('#muPan').hidden; };
+  $('#muPlay').onclick = () => mPlay(!mOn);
+  $('#muNext').onclick = () => mGo(mi + 1);
+  $('#muPrev').onclick = () => mGo(mi - 1);
+  $('#muSel').onchange = e => mGo(+e.target.value);
+  $('#muVol').oninput = e => { mVol = e.target.value / 100; if (mo) mo.gain.value = mVol; };
+
+  /* ---------- Reveal + count-up (once) ---------- */
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function count(el) {
+    const to = +el.dataset.to, dec = +(el.dataset.dec || 0), suf = el.dataset.suf || '';
+    if (reduce) { el.textContent = to.toFixed(dec) + suf; return; }
+    const t0 = performance.now(), dur = 1800;
+    (function tick(t) {
+      const k = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = (to * e).toFixed(dec) + suf;
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  const reveals = $$('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add('in');
+      const n = $('[data-to]', en.target);
+      if (n) count(n);
+      io.unobserve(en.target); setTimeout(() => { en.target.style.transitionDelay = ''; }, 1000);
+    }), { threshold: .2 });
+    reveals.forEach((el, i) => { el.style.transitionDelay = (i % 3) * 80 + 'ms'; io.observe(el); });
+  } else {
+    reveals.forEach(el => { el.classList.add('in'); const n = $('[data-to]', el); if (n) count(n); });
+  }
+});
+</script>
+</body>
+</html>

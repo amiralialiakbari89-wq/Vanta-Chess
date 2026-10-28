@@ -1,0 +1,7 @@
+{
+  "appId": "com.vanta.chess",
+  "appName": "Vanta Chess",
+  "webDir": "www",
+  "backgroundColor": "#0a0a0b",
+  "android": { "allowMixedContent": false }
+}
